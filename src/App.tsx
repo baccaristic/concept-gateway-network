@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import SubmitIdea from "./pages/SubmitIdea";
 import ExpertDashboard from "./pages/ExpertDashboard";
+import IdeaDetails from "./pages/IdeaDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/submit-idea" element={<SubmitIdea />} />
+          <Route path="/ideas/:ideaId" element={<IdeaDetails />} />
           <Route path="/expert-dashboard" element={<ExpertDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
