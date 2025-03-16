@@ -9,19 +9,33 @@ export interface User {
   avatar?: string;
 }
 
+export interface Comment {
+  id: string;
+  text: string;
+  user: string;
+  userName: string;
+  createdAt: string;
+}
+
 export interface Idea {
   id: string;
   title: string;
   description: string;
   createdAt: string;
-  updatedAt: string;
-  ownerId: string;
+  updatedAt?: string;
+  ownerId?: string;
   owner?: User;
+  submittedBy?: string;
+  submitterName?: string;
   status: 'pending' | 'approved' | 'rejected' | 'estimated';
   estimatedPrice?: number;
+  estimatedBudget?: number;
   attachments?: Attachment[];
   category?: string;
   tags?: string[];
+  views?: number;
+  likes?: number;
+  comments?: Comment[];
 }
 
 export interface Attachment {

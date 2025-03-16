@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, DollarSign, MessageCircle, ThumbsUp, User } from 'lucide-react';
-import { Idea } from '@/types';
+import { Idea, Comment } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Mock data
 const mockIdeas: Idea[] = [
@@ -23,24 +24,25 @@ const mockIdeas: Idea[] = [
     submittedBy: "user123",
     submitterName: "Alex Johnson",
     tags: ["AI", "Healthcare", "Mobile"],
-    createdAt: new Date("2023-05-15"),
+    createdAt: new Date("2023-05-15").toISOString(),
+    updatedAt: new Date("2023-05-15").toISOString(),
     views: 142,
     likes: 37,
-    attachments: ["specification.pdf"],
+    attachments: [],
     comments: [
       {
         id: "c1",
         text: "This has great potential for preventative healthcare!",
         user: "investor55",
         userName: "Sarah Williams",
-        createdAt: new Date("2023-05-17")
+        createdAt: new Date("2023-05-17").toISOString()
       },
       {
         id: "c2",
         text: "Have you considered adding integration with healthcare providers' systems?",
         user: "expert12",
         userName: "Dr. Michael Chen",
-        createdAt: new Date("2023-05-18")
+        createdAt: new Date("2023-05-18").toISOString()
       }
     ]
   },
@@ -53,7 +55,8 @@ const mockIdeas: Idea[] = [
     submittedBy: "user456",
     submitterName: "Jamie Smith",
     tags: ["Sustainability", "Agriculture", "B2B", "IoT"],
-    createdAt: new Date("2023-06-02"),
+    createdAt: new Date("2023-06-02").toISOString(),
+    updatedAt: new Date("2023-06-02").toISOString(),
     views: 98,
     likes: 22,
     attachments: [],
@@ -85,17 +88,17 @@ const IdeaDetails = () => {
     
     // For demo purposes, add the comment to the idea object
     if (idea) {
-      const newComment = {
+      const newComment: Comment = {
         id: `c${Date.now()}`,
         text: comment,
         user: "currentUser",
         userName: "Current User",
-        createdAt: new Date()
+        createdAt: new Date().toISOString()
       };
       
       setIdea({
         ...idea,
-        comments: [...idea.comments, newComment]
+        comments: [...(idea.comments || []), newComment]
       });
       
       setComment('');
@@ -106,7 +109,7 @@ const IdeaDetails = () => {
     if (idea) {
       setIdea({
         ...idea,
-        likes: idea.likes + 1
+        likes: (idea.likes || 0) + 1
       });
     }
   };
@@ -117,9 +120,9 @@ const IdeaDetails = () => {
         <div className="container py-8">
           <div className="flex justify-center items-center min-h-[60vh]">
             <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-96"></div>
-              <div className="h-4 bg-gray-200 rounded w-60"></div>
-              <div className="h-64 bg-gray-200 rounded w-full"></div>
+              <Skeleton className="h-8 w-96" />
+              <Skeleton className="h-4 w-60" />
+              <Skeleton className="h-64 w-full" />
             </div>
           </div>
         </div>
@@ -158,7 +161,7 @@ const IdeaDetails = () => {
                 <CardTitle className="text-2xl font-bold">{idea.title}</CardTitle>
                 <CardDescription className="flex items-center mt-2">
                   <Calendar className="mr-2 h-4 w-4 text-gray-500" />
-                  Submitted {formatDistanceToNow(idea.createdAt, { addSuffix: true })}
+                  Submitted {formatDistanceToNow(new Date(idea.createdAt), { addSuffix: true })}
                 </CardDescription>
               </div>
               <div className="flex gap-2">
@@ -182,11 +185,11 @@ const IdeaDetails = () => {
           <CardContent className="space-y-6">
             <div className="flex items-center space-x-4">
               <Avatar>
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${idea.submitterName}`} />
-                <AvatarFallback>{idea.submitterName.charAt(0)}</AvatarFallback>
+                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${idea.submitterName || 'User'}`} />
+                <AvatarFallback>{(idea.submitterName || 'U').charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium">{idea.submitterName}</p>
+                <p className="font-medium">{idea.submitterName || 'Unknown User'}</p>
                 <p className="text-sm text-gray-500">Idea Creator</p>
               </div>
             </div>
@@ -206,7 +209,7 @@ const IdeaDetails = () => {
             <div>
               <h3 className="font-semibold mb-2">Tags</h3>
               <div className="flex flex-wrap gap-2">
-                {idea.tags.map((tag, index) => (
+                {idea.tags && idea.tags.map((tag, index) => (
                   <Badge key={index} variant="outline">{tag}</Badge>
                 ))}
               </div>
@@ -219,7 +222,7 @@ const IdeaDetails = () => {
                   {idea.attachments.map((attachment, index) => (
                     <li key={index} className="flex items-center">
                       <Button variant="ghost" className="h-8 px-2 text-blue-600">
-                        {attachment}
+                        {attachment.name}
                       </Button>
                     </li>
                   ))}
@@ -235,24 +238,24 @@ const IdeaDetails = () => {
                 onClick={handleLike}
               >
                 <ThumbsUp className="h-4 w-4" />
-                <span>{idea.likes}</span>
+                <span>{idea.likes || 0}</span>
               </Button>
               
               <div className="flex items-center gap-1 text-gray-500">
                 <MessageCircle className="h-4 w-4" />
-                <span>{idea.comments.length} comments</span>
+                <span>{idea.comments?.length || 0} comments</span>
               </div>
               
               <div className="flex items-center gap-1 text-gray-500">
                 <User className="h-4 w-4" />
-                <span>{idea.views} views</span>
+                <span>{idea.views || 0} views</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4">Comments ({idea.comments.length})</h3>
+          <h3 className="text-xl font-semibold mb-4">Comments ({idea.comments?.length || 0})</h3>
           
           <form onSubmit={handleAddComment} className="mb-6">
             <div className="flex gap-4">
@@ -267,7 +270,7 @@ const IdeaDetails = () => {
           </form>
           
           <div className="space-y-4">
-            {idea.comments.length === 0 ? (
+            {!idea.comments || idea.comments.length === 0 ? (
               <p className="text-gray-500 text-center py-4">No comments yet. Be the first to comment!</p>
             ) : (
               idea.comments.map((comment) => (
@@ -280,7 +283,7 @@ const IdeaDetails = () => {
                     <div>
                       <p className="font-medium">{comment.userName}</p>
                       <p className="text-xs text-gray-500">
-                        {formatDistanceToNow(comment.createdAt, { addSuffix: true })}
+                        {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                       </p>
                     </div>
                   </div>
