@@ -18,11 +18,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Attachment } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(100, 'Title cannot exceed 100 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters').max(2000, 'Description cannot exceed 2000 characters'),
   category: z.string().min(1, 'Please select a category'),
+  estimatedBudget: z.string().optional().transform(val => val ? Number(val) : undefined),
   tags: z.array(z.string()).optional(),
   acceptTerms: z.boolean().refine(val => val === true, {
     message: 'You must accept the terms and conditions',
@@ -38,6 +41,7 @@ const categories = [
 
 const SubmitIdea = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -45,18 +49,13 @@ const SubmitIdea = () => {
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewIdea, setPreviewIdea] = useState<FormValues | null>(null);
 
-  const mockUser = {
-    name: 'John Doe',
-    role: 'idea-holder' as const,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  };
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       description: '',
       category: '',
+      estimatedBudget: '',
       tags: [],
       acceptTerms: false
     },
@@ -76,7 +75,7 @@ const SubmitIdea = () => {
     form.setValue('tags', updatedTags);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -91,29 +90,32 @@ const SubmitIdea = () => {
 
     const newAttachments: Attachment[] = [];
 
-    Array.from(files).forEach(file => {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
       if (!allowedTypes.includes(file.type)) {
         toast.error(`${file.name} has an invalid file type`);
-        return;
+        continue;
       }
 
       if (file.size > maxSize) {
         toast.error(`${file.name} exceeds the 5MB size limit`);
-        return;
+        continue;
       }
 
-      // In a real application, you would upload the file to a server here
       // For now, we'll just create an object with file information
+      // We'll upload it to Supabase when the form is submitted
       const attachment: Attachment = {
         id: Math.random().toString(36).substring(2, 9),
         name: file.name,
         url: URL.createObjectURL(file),
         type: file.type,
         size: file.size,
+        file: file, // Store the actual file object for later upload
       };
 
       newAttachments.push(attachment);
-    });
+    }
 
     setAttachments(prev => [...prev, ...newAttachments]);
   };
@@ -129,14 +131,98 @@ const SubmitIdea = () => {
   };
 
   const onSubmit = async (data: FormValues) => {
+    if (!user) {
+      toast.error('You must be logged in to submit an idea');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // In a real application, you would submit the data to a server here
-      console.log('Form data:', data);
-      console.log('Attachments:', attachments);
+      // Insert idea into database
+      const { data: ideaData, error: ideaError } = await supabase
+        .from('ideas')
+        .insert({
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          estimated_budget: data.estimatedBudget,
+          owner_id: user.id,
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-      // Simulate a server request
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (ideaError) throw ideaError;
+
+      const ideaId = ideaData.id;
+
+      // Handle tags
+      if (tags.length > 0) {
+        // First ensure all tags exist in the tags table
+        for (const tagName of tags) {
+          const { error: tagError } = await supabase
+            .from('tags')
+            .upsert({ name: tagName }, { onConflict: 'name' })
+            .select();
+
+          if (tagError) throw tagError;
+        }
+
+        // Get the tag IDs
+        const { data: tagData, error: tagSelectError } = await supabase
+          .from('tags')
+          .select('id, name')
+          .in('name', tags);
+
+        if (tagSelectError) throw tagSelectError;
+
+        // Create the idea-tag associations
+        if (tagData && tagData.length > 0) {
+          const ideaTagInserts = tagData.map(tag => ({
+            idea_id: ideaId,
+            tag_id: tag.id
+          }));
+
+          const { error: ideaTagError } = await supabase
+            .from('idea_tags')
+            .insert(ideaTagInserts);
+
+          if (ideaTagError) throw ideaTagError;
+        }
+      }
+
+      // Upload attachments to Supabase Storage
+      if (attachments.length > 0) {
+        for (const attachment of attachments) {
+          if (!attachment.file) continue;
+
+          // Upload file to storage
+          const filePath = `${ideaId}/${attachment.id}-${attachment.name}`;
+          const { error: uploadError } = await supabase.storage
+            .from('attachments')
+            .upload(filePath, attachment.file);
+
+          if (uploadError) throw uploadError;
+
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('attachments')
+            .getPublicUrl(filePath);
+
+          // Store attachment metadata in database
+          const { error: attachmentError } = await supabase
+            .from('attachments')
+            .insert({
+              idea_id: ideaId,
+              name: attachment.name,
+              url: publicUrl,
+              type: attachment.type,
+              size: attachment.size
+            });
+
+          if (attachmentError) throw attachmentError;
+        }
+      }
 
       toast.success('Idea submitted successfully!');
       
@@ -145,9 +231,9 @@ const SubmitIdea = () => {
         navigate('/dashboard');
       }, 1000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting idea:', error);
-      toast.error('Failed to submit idea. Please try again.');
+      toast.error(`Failed to submit idea: ${error.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -170,7 +256,7 @@ const SubmitIdea = () => {
   };
 
   return (
-    <Layout user={mockUser}>
+    <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <motion.div 
           className="space-y-8"
@@ -241,6 +327,24 @@ const SubmitIdea = () => {
                                 </option>
                               ))}
                             </select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="estimatedBudget"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Estimated Budget (Optional)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Enter estimated budget in USD" 
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -422,6 +526,11 @@ const SubmitIdea = () => {
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold">{previewIdea.title}</h2>
                 <Badge>{previewIdea.category}</Badge>
+                {previewIdea.estimatedBudget && (
+                  <div className="font-medium text-green-700">
+                    Estimated Budget: ${previewIdea.estimatedBudget}
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">

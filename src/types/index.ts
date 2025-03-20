@@ -1,12 +1,19 @@
-
-export type UserRole = 'idea-holder' | 'expert' | 'admin' | 'investor';
-
-export interface User {
+export interface Idea {
   id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar?: string;
+  title: string;
+  description: string;
+  category?: string;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
+  submittedBy?: string;
+  submitterName?: string;
+  estimatedBudget?: number;
+  views?: number;
+  likes?: number;
+  tags?: string[];
+  attachments?: Attachment[];
+  comments?: Comment[];
 }
 
 export interface Comment {
@@ -17,40 +24,19 @@ export interface Comment {
   createdAt: string;
 }
 
-export interface Idea {
-  id: string;
-  title: string;
-  description: string;
-  createdAt: string;
-  updatedAt?: string;
-  ownerId?: string;
-  owner?: User;
-  submittedBy?: string;
-  submitterName?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'estimated';
-  estimatedPrice?: number;
-  estimatedBudget?: number;
-  attachments?: Attachment[];
-  category?: string;
-  tags?: string[];
-  views?: number;
-  likes?: number;
-  comments?: Comment[];
-}
-
 export interface Attachment {
   id: string;
   name: string;
   url: string;
   type: string;
   size: number;
+  file?: File; // Added file property for uploading
 }
 
-export interface Agreement {
+export interface Profile {
   id: string;
-  investorId: string;
-  ideaId: string;
-  signedAt?: string;
-  status: 'pending' | 'signed';
-  signature?: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl?: string;
 }
