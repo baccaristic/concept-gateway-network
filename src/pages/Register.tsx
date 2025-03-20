@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { motion } from 'framer-motion';
 import { UserRole } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -18,13 +19,12 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<UserRole>('idea-holder');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{
     password?: string;
     confirmPassword?: string;
   }>({});
   
-  const navigate = useNavigate();
+  const { signUp, isLoading } = useAuth();
 
   const validateForm = () => {
     const newErrors: {
@@ -51,14 +51,7 @@ const Register = () => {
       return;
     }
     
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Register with:', { name, email, password, role });
-      setLoading(false);
-      navigate('/dashboard');
-    }, 1500);
+    await signUp(email, password, name, role);
   };
 
   return (
@@ -168,8 +161,8 @@ const Register = () => {
                     </RadioGroup>
                   </div>
                   
-                  <Button type="submit" className="w-full h-11" disabled={loading}>
-                    {loading ? (
+                  <Button type="submit" className="w-full h-11" disabled={isLoading}>
+                    {isLoading ? (
                       <div className="flex items-center justify-center">
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
