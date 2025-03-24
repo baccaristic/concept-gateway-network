@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string, role: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -109,12 +110,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success('Password reset instructions sent to your email');
+    } catch (error: any) {
+      toast.error(`Error sending reset password email: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Password updated successfully');
+      navigate('/login');
+    } catch (error: any) {
+      toast.error(`Error updating password: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value = {
     user,
     session,
     signUp,
     signIn,
     signOut,
+    resetPassword,
+    updatePassword,
     isLoading,
   };
 

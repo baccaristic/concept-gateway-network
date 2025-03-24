@@ -72,7 +72,7 @@ const SubmitIdea = () => {
   };
 
   return (
-    <Layout user={user ? { name: user.name, role: user.role } : undefined}>
+    <Layout user={user ? { name: user.name, role: user.role, avatar: user.avatarUrl } : undefined}>
       <div className="container mx-auto py-8 px-4 max-w-3xl">
         <h1 className="text-3xl font-bold mb-8 text-center">Submit Your Idea</h1>
         
