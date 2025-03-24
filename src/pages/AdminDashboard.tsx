@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -198,7 +197,7 @@ const AdminDashboard = () => {
 
   if (!user || (user && user.role !== 'admin')) {
     return (
-      <Layout user={user ? { name: user.name, role: user.role } : undefined}>
+      <Layout user={user ? { name: user.name, role: user.role, avatar: user.avatarUrl } : undefined}>
         <div className="container mx-auto py-10 text-center">
           <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
           <p className="mb-6">You don't have permission to access this page.</p>
@@ -209,7 +208,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <Layout user={user ? { name: user.name, role: user.role } : undefined}>
+    <Layout user={user ? { name: user.name, role: user.role, avatar: user.avatarUrl } : undefined}>
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
         
