@@ -46,7 +46,7 @@ export interface Profile {
 
 // Adding User type which extends Profile with any user-specific properties
 export interface User extends Profile {
-  // Any additional user properties can go here
+  avatar?: string; // Added to accommodate existing code using avatar property
 }
 
 // Adding UserRole type

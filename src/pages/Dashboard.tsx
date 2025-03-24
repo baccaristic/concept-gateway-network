@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +35,7 @@ const mockIdeas: Idea[] = [
     description: 'A system that uses AI to track and reduce food waste in restaurants and homes.',
     createdAt: '2023-08-15T10:30:00Z',
     updatedAt: '2023-08-15T10:30:00Z',
-    ownerId: '1',
+    owner_id: '1',
     status: 'approved',
     estimatedPrice: 45000,
     category: 'Sustainability',
@@ -46,7 +47,7 @@ const mockIdeas: Idea[] = [
     description: 'Biodegradable packaging made from agricultural waste.',
     createdAt: '2023-09-20T14:15:00Z',
     updatedAt: '2023-09-25T09:45:00Z',
-    ownerId: '1',
+    owner_id: '1',
     status: 'estimated',
     estimatedPrice: 28000,
     category: 'Sustainability',
@@ -58,7 +59,7 @@ const mockIdeas: Idea[] = [
     description: 'Augmented Reality platform that makes learning interactive and engaging for K-12 students.',
     createdAt: '2023-10-05T11:20:00Z',
     updatedAt: '2023-10-05T11:20:00Z',
-    ownerId: '1',
+    owner_id: '1',
     status: 'pending',
     category: 'Education',
     tags: ['AR', 'Education', 'Technology'],
