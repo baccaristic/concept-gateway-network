@@ -1,3 +1,4 @@
+
 export interface Idea {
   id: string;
   title: string;
@@ -6,9 +7,11 @@ export interface Idea {
   status: string;
   createdAt: string;
   updatedAt?: string;
+  owner_id?: string;
   submittedBy?: string;
   submitterName?: string;
   estimatedBudget?: number;
+  estimatedPrice?: number;  // Added this property
   views?: number;
   likes?: number;
   tags?: string[];
@@ -40,3 +43,11 @@ export interface Profile {
   role: string;
   avatarUrl?: string;
 }
+
+// Adding User type which extends Profile with any user-specific properties
+export interface User extends Profile {
+  // Any additional user properties can go here
+}
+
+// Adding UserRole type
+export type UserRole = 'idea-holder' | 'investor' | 'expert' | 'admin';
