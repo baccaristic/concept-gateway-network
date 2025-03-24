@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -145,7 +144,7 @@ const SubmitIdea = () => {
           title: data.title,
           description: data.description,
           category: data.category,
-          estimated_budget: data.estimatedBudget,
+          estimated_budget: parseFloat(data.estimatedBudget) || null,
           owner_id: user.id,
           status: 'pending'
         })

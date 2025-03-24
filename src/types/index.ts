@@ -1,4 +1,3 @@
-
 export interface Idea {
   id: string;
   title: string;
@@ -11,7 +10,7 @@ export interface Idea {
   submittedBy?: string;
   submitterName?: string;
   estimatedBudget?: number;
-  estimatedPrice?: number;  // Added this property
+  estimatedPrice?: number;
   views?: number;
   likes?: number;
   tags?: string[];
@@ -33,7 +32,7 @@ export interface Attachment {
   url: string;
   type: string;
   size: number;
-  file?: File; // Added file property for uploading
+  file?: File;
 }
 
 export interface Profile {
@@ -44,10 +43,8 @@ export interface Profile {
   avatarUrl?: string;
 }
 
-// Adding User type which extends Profile with any user-specific properties
 export interface User extends Profile {
-  avatar?: string; // Added to accommodate existing code using avatar property
+  avatar?: string;
 }
 
-// Adding UserRole type
 export type UserRole = 'idea-holder' | 'investor' | 'expert' | 'admin';

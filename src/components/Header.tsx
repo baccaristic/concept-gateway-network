@@ -41,10 +41,11 @@ const Header = ({ user }: HeaderProps) => {
         links.push({ name: 'My Ideas', path: '/my-ideas' });
         break;
       case 'expert':
-        links.push({ name: 'Ideas to Estimate', path: '/ideas-to-estimate' });
+        links.push({ name: 'Ideas to Estimate', path: '/expert-dashboard' });
         break;
       case 'admin':
         links.push(
+          { name: 'Admin Dashboard', path: '/admin-dashboard' },
           { name: 'Ideas Management', path: '/ideas-management' },
           { name: 'Users', path: '/users' }
         );
@@ -119,6 +120,11 @@ const Header = ({ user }: HeaderProps) => {
                     <DropdownMenuItem>
                       <Link to="/settings" className="w-full">Settings</Link>
                     </DropdownMenuItem>
+                    {user.role === 'admin' && (
+                      <DropdownMenuItem>
+                        <Link to="/admin-dashboard" className="w-full">Admin Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <Link to="/logout" className="w-full">Logout</Link>
