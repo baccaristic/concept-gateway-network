@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HeaderProps {
   user?: {
@@ -24,10 +25,14 @@ interface HeaderProps {
 const Header = ({ user }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { profile, signOut } = useAuth();
+
+  // Use profile from auth context if available, otherwise fallback to passed user prop
+  const currentUser = profile || user;
 
   // Navigation links based on user role
   const getNavLinks = () => {
-    if (!user) {
+    if (!currentUser) {
       return [
         { name: 'Home', path: '/' },
         { name: 'About', path: '/about' },
@@ -36,7 +41,7 @@ const Header = ({ user }: HeaderProps) => {
 
     const links = [{ name: 'Dashboard', path: '/dashboard' }];
 
-    switch (user.role) {
+    switch (currentUser.role) {
       case 'idea-holder':
         links.push({ name: 'My Ideas', path: '/my-ideas' });
         break;
@@ -59,6 +64,10 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   const navLinks = getNavLinks();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-200">
@@ -88,7 +97,7 @@ const Header = ({ user }: HeaderProps) => {
           </nav>
 
           <div className="flex items-center space-x-4">
-            {user ? (
+            {currentUser ? (
               <>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
@@ -98,9 +107,9 @@ const Header = ({ user }: HeaderProps) => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage src={currentUser.avatar || currentUser.avatarUrl} alt={currentUser.name} />
                         <AvatarFallback className="bg-primary/10 text-primary">
-                          {user.name.charAt(0)}
+                          {currentUser.name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <ChevronDown className="h-4 w-4" />
@@ -109,8 +118,8 @@ const Header = ({ user }: HeaderProps) => {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium">{user.name}</p>
-                        <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                        <p className="text-sm font-medium">{currentUser.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -120,14 +129,14 @@ const Header = ({ user }: HeaderProps) => {
                     <DropdownMenuItem>
                       <Link to="/settings" className="w-full">Settings</Link>
                     </DropdownMenuItem>
-                    {user.role === 'admin' && (
+                    {currentUser.role === 'admin' && (
                       <DropdownMenuItem>
                         <Link to="/admin-dashboard" className="w-full">Admin Dashboard</Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Link to="/logout" className="w-full">Logout</Link>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

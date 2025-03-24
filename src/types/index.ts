@@ -42,6 +42,7 @@ export interface Profile {
   email: string;
   role: string;
   avatarUrl?: string;
+  created_at?: string;
 }
 
 export interface User extends Profile {
