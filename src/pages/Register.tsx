@@ -147,16 +147,12 @@ const Register = () => {
                     <Label>I am a:</Label>
                     <RadioGroup value={role} onValueChange={(value) => setRole(value as UserRole)} className="flex flex-col space-y-2 mt-1">
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="idea-holder" id="idea-holder" />
+                        <RadioGroupItem value="IDEA_HOLDER" id="idea-holder" />
                         <Label htmlFor="idea-holder" className="font-normal cursor-pointer">Idea Holder</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="investor" id="investor" />
+                        <RadioGroupItem value="INVESTOR" id="investor" />
                         <Label htmlFor="investor" className="font-normal cursor-pointer">Investor</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="expert" id="expert" />
-                        <Label htmlFor="expert" className="font-normal cursor-pointer">Expert</Label>
                       </div>
                     </RadioGroup>
                   </div>

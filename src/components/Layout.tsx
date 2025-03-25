@@ -2,14 +2,11 @@
 import { ReactNode } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import {User} from "@/types";
 
 interface LayoutProps {
   children: ReactNode;
-  user?: {
-    name: string;
-    role: string;
-    avatar?: string;
-  };
+  user?: User;
   hideFooter?: boolean;
 }
 

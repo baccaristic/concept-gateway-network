@@ -1,12 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import {User} from "@/types";
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   signUp: (email: string, password: string, name: string, role: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -19,56 +18,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_IN') {
-          toast.success('Successfully signed in');
-        } else if (event === 'SIGNED_OUT') {
-          toast.info('You have been signed out');
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const signUp = async (email: string, password: string, name: string, role: string) => {
     try {
       setIsLoading(true);
-      const { error, data } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            role
-          },
+      const rep = await fetch('http://localhost:8083/auth/register', {
+        method: 'POST',
+        headers: {
+          "Content-Type": 'application/json',
         },
+        body: JSON.stringify({email, password,name,role})
       });
-
-      if (error) {
-        throw error;
+      if (rep.ok) {
+        toast.success('Registration successful! Please check your email for confirmation.');
+        navigate('/login');
       }
-
-      toast.success('Registration successful! Please check your email for confirmation.');
-      navigate('/login');
-    } catch (error: any) {
+      else {
+        const response = await rep.text();
+        toast.error(`Error signing up: ${response}`);
+      }
+    } catch (error){
       toast.error(`Error signing up: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -78,17 +49,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const rep = await fetch('http://localhost:8083/auth/login', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({email, password})
       });
-
-      if (error) {
-        throw error;
+      if (rep.ok) {
+        rep.json().then((data) => {
+          localStorage.setItem("token", data.token);
+          setUser(data.user);
+          navigate('/dashboard');
+        })
       }
-
-      navigate('/dashboard');
-    } catch (error: any) {
+      else {
+        const response = await rep.text();
+        toast.error(`Error signing in: ${response}`)
+      }
+    } catch (error) {
       toast.error(`Error signing in: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -103,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(`Error signing out: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -122,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       toast.success('Password reset instructions sent to your email');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(`Error sending reset password email: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -142,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       toast.success('Password updated successfully');
       navigate('/login');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(`Error updating password: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -151,7 +130,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     user,
-    session,
     signUp,
     signIn,
     signOut,

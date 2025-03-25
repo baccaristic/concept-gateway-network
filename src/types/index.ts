@@ -4,7 +4,7 @@ export interface Idea {
   title: string;
   description: string;
   category?: string;
-  status: string;
+  status: IdeaStatus;
   createdAt: string;
   updatedAt?: string;
   owner_id?: string;
@@ -40,7 +40,7 @@ export interface Profile {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   avatarUrl?: string;
 }
 
@@ -48,4 +48,6 @@ export interface User extends Profile {
   avatar?: string;
 }
 
-export type UserRole = 'idea-holder' | 'investor' | 'expert' | 'admin';
+export type UserRole = 'IDEA_HOLDER' | 'INVESTOR' | 'EXPERT' | 'ADMIN';
+
+export type IdeaStatus = 'AWAITING_APPROVAL' | 'APPROVED' | 'ESTIMATED' | 'CONFIRMED'

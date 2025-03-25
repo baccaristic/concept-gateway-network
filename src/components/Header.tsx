@@ -12,18 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {useAuth} from "@/contexts/AuthContext.tsx";
+import {User} from "@/types";
 
 interface HeaderProps {
-  user?: {
-    name: string;
-    role: string;
-    avatar?: string;
-  };
+  user?: User
 }
 
 const Header = ({ user }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  const {signOut} = useAuth();
 
   // Navigation links based on user role
   const getNavLinks = () => {
@@ -59,6 +59,10 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   const navLinks = getNavLinks();
+
+  const handleSignOut = () => {
+    signOut();
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-200">
@@ -127,7 +131,7 @@ const Header = ({ user }: HeaderProps) => {
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                      <Link to="/logout" className="w-full">Logout</Link>
+                      <Link onClick={handleSignOut} className="w-full">Logout</Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

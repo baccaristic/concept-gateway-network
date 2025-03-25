@@ -15,7 +15,8 @@ import { toast } from 'sonner';
 import { Idea, User, UserRole } from '@/types';
 
 const AdminDashboard = () => {
-  const { user, session } = useAuth();
+  const { user } = useAuth();
+  console.log(user);
   const navigate = useNavigate();
 
   const [ideas, setIdeas] = useState<Idea[]>([]);
@@ -80,12 +81,12 @@ const AdminDashboard = () => {
         
         setUsers(formattedUsers);
         setUserCount(formattedUsers.length);
-        setExpertCount(formattedUsers.filter(user => user.role === 'expert').length);
-        setInvestorCount(formattedUsers.filter(user => user.role === 'investor').length);
-        setIdeaHolderCount(formattedUsers.filter(user => user.role === 'idea-holder').length);
-        setAdminCount(formattedUsers.filter(user => user.role === 'admin').length);
+        setExpertCount(formattedUsers.filter(user => user.role === 'EXPERT').length);
+        setInvestorCount(formattedUsers.filter(user => user.role === 'INVESTOR').length);
+        setIdeaHolderCount(formattedUsers.filter(user => user.role === 'IDEA_HOLDER').length);
+        setAdminCount(formattedUsers.filter(user => user.role === 'ADMIN').length);
         
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error fetching dashboard data:', error.message);
         toast.error('Failed to load dashboard data');
       } finally {
@@ -111,7 +112,7 @@ const AdminDashboard = () => {
       );
       
       toast.success(`User role updated to ${newRole}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating user role:', error.message);
       toast.error('Failed to update user role');
     }
@@ -135,7 +136,7 @@ const AdminDashboard = () => {
       setIdeaCount(prevCount => prevCount - 1);
       
       toast.success('Idea deleted successfully');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting idea:', error.message);
       toast.error('Failed to delete idea');
     }
@@ -156,7 +157,7 @@ const AdminDashboard = () => {
       );
       
       toast.success(`Idea status updated to ${newStatus}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating idea status:', error.message);
       toast.error('Failed to update idea status');
     }
@@ -195,9 +196,9 @@ const AdminDashboard = () => {
     count,
   }));
 
-  if (!user || (user && user.role !== 'admin')) {
+  if (!user || (user && user.role !== 'ADMIN')) {
     return (
-      <Layout user={user ? { name: user.name, role: user.role, avatar: user.avatarUrl } : undefined}>
+      <Layout user={user ?? undefined}>
         <div className="container mx-auto py-10 text-center">
           <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
           <p className="mb-6">You don't have permission to access this page.</p>
@@ -208,7 +209,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <Layout user={user ? { name: user.name, role: user.role, avatar: user.avatarUrl } : undefined}>
+    <Layout user={user ?? undefined}>
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
         
@@ -337,9 +338,9 @@ const AdminDashboard = () => {
                           <td className="px-4 py-2">{idea.title}</td>
                           <td className="px-4 py-2">
                             <Badge variant={
-                              idea.status === 'approved' ? 'default' :
-                              idea.status === 'pending' ? 'secondary' :
-                              idea.status === 'rejected' ? 'destructive' :
+                              idea.status === 'APPROVED' ? 'default' :
+                              idea.status === 'AWAITING_APPROVAL' ? 'secondary' :
+                              idea.status === 'ESTIMATED' ? 'destructive' :
                               'outline'
                             }>
                               {idea.status}
@@ -428,9 +429,9 @@ const AdminDashboard = () => {
                           <td className="px-4 py-2">{user.email}</td>
                           <td className="px-4 py-2">
                             <Badge variant={
-                              user.role === 'admin' ? 'destructive' :
-                              user.role === 'expert' ? 'default' :
-                              user.role === 'investor' ? 'secondary' :
+                              user.role === 'ADMIN' ? 'destructive' :
+                              user.role === 'EXPERT' ? 'default' :
+                              user.role === 'INVESTOR' ? 'secondary' :
                               'outline'
                             }>
                               {user.role}

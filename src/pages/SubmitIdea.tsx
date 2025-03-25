@@ -45,25 +45,25 @@ const SubmitIdea = () => {
     
     try {
       setIsSubmitting(true);
-      
-      const { data, error } = await supabase
-        .from('ideas')
-        .insert({
+
+      const rep = await fetch('http://localhost:8083/ideas/new', {
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
           title,
           description,
           category,
-          owner_id: user?.id,
-          status: 'pending',
-          estimated_budget: estimatedBudget ? Number(estimatedBudget) : null,
-        })
-        .select();
+          estimated_budget: estimatedBudget ? Number(estimatedBudget) : null})
+      });
+      if (rep.ok) {
+        toast.success('Your idea has been submitted successfully!');
+        navigate('/dashboard');
+      }
       
-      if (error) throw error;
-      
-      toast.success('Your idea has been submitted successfully!');
-      navigate('/dashboard');
-      
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error submitting idea:', error);
       toast.error('Failed to submit idea: ' + error.message);
     } finally {
@@ -72,7 +72,7 @@ const SubmitIdea = () => {
   };
 
   return (
-    <Layout user={user ? { name: user.name, role: user.role, avatar: user.avatarUrl } : undefined}>
+    <Layout user={user}>
       <div className="container mx-auto py-8 px-4 max-w-3xl">
         <h1 className="text-3xl font-bold mb-8 text-center">Submit Your Idea</h1>
         

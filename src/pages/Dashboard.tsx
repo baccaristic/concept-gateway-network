@@ -5,14 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { 
-  TrendingUp, 
-  Users, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  DollarSign, 
-  FileText, 
+import {
+  TrendingUp,
+  Users,
+  CheckCircle,
+  XCircle,
+  Clock,
+  DollarSign,
+  FileText,
   Plus,
   Eye,
   Download
@@ -20,91 +20,57 @@ import {
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UserRole, Idea } from '@/types';
-
-// Mock data
-const mockUser = {
-  name: 'John Doe',
-  role: 'idea-holder' as UserRole,
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-};
-
-const mockIdeas: Idea[] = [
-  {
-    id: '1',
-    title: 'AI-Powered Food Waste Reduction System',
-    description: 'A system that uses AI to track and reduce food waste in restaurants and homes.',
-    createdAt: '2023-08-15T10:30:00Z',
-    updatedAt: '2023-08-15T10:30:00Z',
-    owner_id: '1',
-    status: 'approved',
-    estimatedPrice: 45000,
-    category: 'Sustainability',
-    tags: ['AI', 'Food', 'Sustainability'],
-  },
-  {
-    id: '2',
-    title: 'Eco-Friendly Packaging Solution',
-    description: 'Biodegradable packaging made from agricultural waste.',
-    createdAt: '2023-09-20T14:15:00Z',
-    updatedAt: '2023-09-25T09:45:00Z',
-    owner_id: '1',
-    status: 'estimated',
-    estimatedPrice: 28000,
-    category: 'Sustainability',
-    tags: ['Eco-friendly', 'Packaging', 'Waste Reduction'],
-  },
-  {
-    id: '3',
-    title: 'AR Learning Platform for Students',
-    description: 'Augmented Reality platform that makes learning interactive and engaging for K-12 students.',
-    createdAt: '2023-10-05T11:20:00Z',
-    updatedAt: '2023-10-05T11:20:00Z',
-    owner_id: '1',
-    status: 'pending',
-    category: 'Education',
-    tags: ['AR', 'Education', 'Technology'],
-  },
-];
+import {useAuth} from "@/contexts/AuthContext.tsx";
 
 const Dashboard = () => {
-  const [user, setUser] = useState(mockUser);
-  const [ideas, setIdeas] = useState<Idea[]>(mockIdeas);
+  const {user} = useAuth()
+  const [ideas, setIdeas] = useState<Idea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
+
+    fetch('http://localhost:8083/ideas/my-ideas', {
+      method: 'GET',
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
+      }
+    }).then(
+        (response) => {
+          response.json().then(
+              (ideas) => {
+                console.log(ideas);
+                setIdeas(ideas)
+              }
+          )
+        }
+    )
   }, []);
 
   // Stats based on the user role
   const renderStats = () => {
     switch (user.role) {
-      case 'idea-holder':
+      case 'IDEA_HOLDER':
         return [
           { title: 'My Ideas', value: ideas.length, icon: <FileText className="h-4 w-4" />, color: 'bg-blue-500' },
-          { title: 'Approved', value: ideas.filter(i => i.status === 'approved').length, icon: <CheckCircle className="h-4 w-4" />, color: 'bg-emerald-500' },
-          { title: 'Pending', value: ideas.filter(i => i.status === 'pending').length, icon: <Clock className="h-4 w-4" />, color: 'bg-amber-500' },
+          { title: 'Approved', value: ideas.filter(i => i.status === 'APPROVED').length, icon: <CheckCircle className="h-4 w-4" />, color: 'bg-emerald-500' },
+          { title: 'Pending', value: ideas.filter(i => i.status === 'AWAITING_APPROVAL').length, icon: <Clock className="h-4 w-4" />, color: 'bg-amber-500' },
           { title: 'Estimated Value', value: `$${ideas.reduce((sum, idea) => sum + (idea.estimatedPrice || 0), 0).toLocaleString()}`, icon: <DollarSign className="h-4 w-4" />, color: 'bg-indigo-500' },
         ];
-      case 'expert':
+      case 'EXPERT':
         return [
           { title: 'To Estimate', value: 12, icon: <FileText className="h-4 w-4" />, color: 'bg-blue-500' },
           { title: 'Estimated', value: 45, icon: <CheckCircle className="h-4 w-4" />, color: 'bg-emerald-500' },
           { title: 'Avg. Estimation', value: '$32,150', icon: <DollarSign className="h-4 w-4" />, color: 'bg-indigo-500' },
           { title: 'Response Time', value: '1.5 days', icon: <Clock className="h-4 w-4" />, color: 'bg-amber-500' },
         ];
-      case 'admin':
+      case 'ADMIN':
         return [
           { title: 'Total Ideas', value: 157, icon: <FileText className="h-4 w-4" />, color: 'bg-blue-500' },
           { title: 'Total Users', value: 83, icon: <Users className="h-4 w-4" />, color: 'bg-purple-500' },
           { title: 'Pending Approval', value: 23, icon: <Clock className="h-4 w-4" />, color: 'bg-amber-500' },
           { title: 'Revenue', value: '$45,750', icon: <DollarSign className="h-4 w-4" />, color: 'bg-emerald-500' },
         ];
-      case 'investor':
+      case 'INVESTOR':
         return [
           { title: 'Viewed Ideas', value: 34, icon: <Eye className="h-4 w-4" />, color: 'bg-blue-500' },
           { title: 'Signed Agreements', value: 12, icon: <FileText className="h-4 w-4" />, color: 'bg-emerald-500' },
@@ -119,7 +85,7 @@ const Dashboard = () => {
   // Render different content based on user role
   const renderRoleSpecificContent = () => {
     switch (user.role) {
-      case 'idea-holder':
+      case 'IDEA_HOLDER':
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -164,19 +130,19 @@ const Dashboard = () => {
                 </TabsContent>
                 
                 <TabsContent value="pending" className="space-y-4">
-                  {ideas.filter(idea => idea.status === 'pending').map((idea) => (
+                  {ideas.filter(idea => idea.status === 'AWAITING_APPROVAL').map((idea) => (
                     <IdeaCard key={idea.id} idea={idea} userRole={user.role} />
                   ))}
                 </TabsContent>
                 
                 <TabsContent value="approved" className="space-y-4">
-                  {ideas.filter(idea => idea.status === 'approved').map((idea) => (
+                  {ideas.filter(idea => idea.status === 'APPROVED').map((idea) => (
                     <IdeaCard key={idea.id} idea={idea} userRole={user.role} />
                   ))}
                 </TabsContent>
                 
                 <TabsContent value="estimated" className="space-y-4">
-                  {ideas.filter(idea => idea.status === 'estimated').map((idea) => (
+                  {ideas.filter(idea => idea.status === 'ESTIMATED').map((idea) => (
                     <IdeaCard key={idea.id} idea={idea} userRole={user.role} />
                   ))}
                 </TabsContent>
@@ -308,7 +274,7 @@ const IdeaCard = ({ idea, userRole }: IdeaCardProps) => {
                     <Eye className="h-4 w-4 mr-1" /> View
                   </Link>
                 </Button>
-                {userRole === 'idea-holder' && (
+                {userRole === 'IDEA_HOLDER' && (
                   <Button variant="outline" size="sm">
                     <Download className="h-4 w-4 mr-1" /> Export
                   </Button>
