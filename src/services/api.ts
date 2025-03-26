@@ -2,7 +2,7 @@
 /**
  * API service for handling all backend communication
  */
-import { Idea, User, Comment } from "@/types";
+import { Idea, User, Comment, UserRole, IdeaStatus } from "@/types";
 
 // Base API URL - change this to your Spring Boot server address in production
 const API_BASE_URL = 'http://localhost:8083';
@@ -137,3 +137,98 @@ export const userApi = {
     return await response.json();
   }
 };
+
+/**
+ * Admin related API calls
+ */
+export const adminApi = {
+  // Get all users (admin only)
+  getAllUsers: async (): Promise<User[]> => {
+    const response = await fetch(`${API_BASE_URL}/admin/users`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    
+    return await response.json();
+  },
+  
+  // Update user role (admin only)
+  updateUserRole: async (userId: string, role: UserRole): Promise<User> => {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/role`, {
+      method: 'PUT',
+      headers: setAuthHeader(),
+      body: JSON.stringify({ role })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update user role');
+    }
+    
+    return await response.json();
+  },
+  
+  // Get all ideas (admin only)
+  getAllIdeas: async (): Promise<Idea[]> => {
+    const response = await fetch(`${API_BASE_URL}/admin/ideas`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch ideas');
+    }
+    
+    return await response.json();
+  },
+  
+  // Update idea status (admin only)
+  updateIdeaStatus: async (ideaId: string, status: IdeaStatus): Promise<Idea> => {
+    const response = await fetch(`${API_BASE_URL}/admin/ideas/${ideaId}/status`, {
+      method: 'PUT',
+      headers: setAuthHeader(),
+      body: JSON.stringify({ status })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update idea status');
+    }
+    
+    return await response.json();
+  },
+  
+  // Delete idea (admin only)
+  deleteIdea: async (ideaId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/admin/ideas/${ideaId}`, {
+      method: 'DELETE',
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete idea');
+    }
+  },
+  
+  // Get dashboard stats (admin only)
+  getDashboardStats: async (): Promise<{
+    userCount: number;
+    ideaCount: number;
+    expertCount: number;
+    investorCount: number;
+    ideaHolderCount: number;
+    adminCount: number;
+    statusCounts: Record<string, number>;
+  }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/dashboard/stats`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch dashboard stats');
+    }
+    
+    return await response.json();
+  }
+};
+

@@ -1,32 +1,40 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { 
+  Table, TableBody, TableCell, TableHead, 
+  TableHeader, TableRow 
+} from '@/components/ui/table';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Idea, User, UserRole } from '@/types';
+import { Idea, User, UserRole, IdeaStatus } from '@/types';
+import { useAdminService } from '@/hooks/useAdminService';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  console.log(user);
   const navigate = useNavigate();
+  const adminService = useAdminService();
 
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [userCount, setUserCount] = useState(0);
-  const [ideaCount, setIdeaCount] = useState(0);
-  const [expertCount, setExpertCount] = useState(0);
-  const [investorCount, setInvestorCount] = useState(0);
-  const [ideaHolderCount, setIdeaHolderCount] = useState(0);
-  const [adminCount, setAdminCount] = useState(0);
+  const [stats, setStats] = useState({
+    userCount: 0,
+    ideaCount: 0,
+    expertCount: 0,
+    investorCount: 0,
+    ideaHolderCount: 0,
+    adminCount: 0,
+    statusCounts: {} as Record<string, number>
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -38,53 +46,16 @@ const AdminDashboard = () => {
       try {
         setIsLoading(true);
         
-        // Fetch ideas
-        const { data: ideasData, error: ideasError } = await supabase
-          .from('ideas')
-          .select('*');
-          
-        if (ideasError) throw ideasError;
+        // Get all dashboard data
+        const [ideasData, usersData, statsData] = await Promise.all([
+          adminService.getAllIdeas(),
+          adminService.getAllUsers(),
+          adminService.getDashboardStats()
+        ]);
         
-        // Transform the data to match our Idea interface
-        const formattedIdeas = ideasData.map(idea => ({
-          id: idea.id,
-          title: idea.title,
-          description: idea.description,
-          category: idea.category || undefined,
-          status: idea.status,
-          createdAt: idea.created_at,
-          updatedAt: idea.updated_at || undefined,
-          owner_id: idea.owner_id || undefined,
-          estimatedBudget: idea.estimated_budget || undefined,
-          estimatedPrice: idea.estimated_price || undefined,
-          views: idea.views || undefined,
-          likes: idea.likes || undefined,
-        }));
-        
-        setIdeas(formattedIdeas);
-        setIdeaCount(formattedIdeas.length);
-        
-        // Fetch users
-        const { data: usersData, error: usersError } = await supabase
-          .from('profiles')
-          .select('*');
-          
-        if (usersError) throw usersError;
-        
-        const formattedUsers = usersData.map(user => ({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role as UserRole,
-          avatarUrl: user.avatar_url || undefined,
-        }));
-        
-        setUsers(formattedUsers);
-        setUserCount(formattedUsers.length);
-        setExpertCount(formattedUsers.filter(user => user.role === 'EXPERT').length);
-        setInvestorCount(formattedUsers.filter(user => user.role === 'INVESTOR').length);
-        setIdeaHolderCount(formattedUsers.filter(user => user.role === 'IDEA_HOLDER').length);
-        setAdminCount(formattedUsers.filter(user => user.role === 'ADMIN').length);
+        setIdeas(ideasData);
+        setUsers(usersData);
+        setStats(statsData);
         
       } catch (error) {
         console.error('Error fetching dashboard data:', error.message);
@@ -97,69 +68,50 @@ const AdminDashboard = () => {
     fetchData();
   }, [user]);
 
-  const updateUserRole = async (userId: string, newRole: UserRole) => {
+  const handleUpdateUserRole = async (userId: string, newRole: UserRole) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-
-      if (error) throw error;
+      await adminService.updateUserRole(userId, newRole);
       
       // Update local state
       setUsers(prevUsers => 
         prevUsers.map(u => u.id === userId ? { ...u, role: newRole } : u)
       );
-      
-      toast.success(`User role updated to ${newRole}`);
     } catch (error) {
       console.error('Error updating user role:', error.message);
-      toast.error('Failed to update user role');
     }
   };
 
-  const deleteIdea = async (ideaId: string) => {
+  const handleDeleteIdea = async (ideaId: string) => {
     if (!confirm('Are you sure you want to delete this idea? This action cannot be undone.')) {
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('ideas')
-        .delete()
-        .eq('id', ideaId);
-
-      if (error) throw error;
+      await adminService.deleteIdea(ideaId);
       
       // Update local state
       setIdeas(prevIdeas => prevIdeas.filter(idea => idea.id !== ideaId));
-      setIdeaCount(prevCount => prevCount - 1);
+      setStats(prev => ({
+        ...prev,
+        ideaCount: prev.ideaCount - 1
+      }));
       
-      toast.success('Idea deleted successfully');
     } catch (error) {
       console.error('Error deleting idea:', error.message);
-      toast.error('Failed to delete idea');
     }
   };
 
-  const updateIdeaStatus = async (ideaId: string, newStatus: string) => {
+  const handleUpdateIdeaStatus = async (ideaId: string, newStatus: IdeaStatus) => {
     try {
-      const { error } = await supabase
-        .from('ideas')
-        .update({ status: newStatus })
-        .eq('id', ideaId);
-
-      if (error) throw error;
+      await adminService.updateIdeaStatus(ideaId, newStatus);
       
       // Update local state
       setIdeas(prevIdeas => 
         prevIdeas.map(idea => idea.id === ideaId ? { ...idea, status: newStatus } : idea)
       );
       
-      toast.success(`Idea status updated to ${newStatus}`);
     } catch (error) {
       console.error('Error updating idea status:', error.message);
-      toast.error('Failed to update idea status');
     }
   };
 
@@ -179,20 +131,15 @@ const AdminDashboard = () => {
 
   // Chart data for user roles
   const roleData = [
-    { name: 'Idea Holders', value: ideaHolderCount, color: '#10b981' },
-    { name: 'Experts', value: expertCount, color: '#3b82f6' },
-    { name: 'Investors', value: investorCount, color: '#8b5cf6' },
-    { name: 'Admins', value: adminCount, color: '#ef4444' },
+    { name: 'Idea Holders', value: stats.ideaHolderCount, color: '#10b981' },
+    { name: 'Experts', value: stats.expertCount, color: '#3b82f6' },
+    { name: 'Investors', value: stats.investorCount, color: '#8b5cf6' },
+    { name: 'Admins', value: stats.adminCount, color: '#ef4444' },
   ];
 
   // Chart data for idea status
-  const statusCounts = ideas.reduce((acc, idea) => {
-    acc[idea.status] = (acc[idea.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const statusData = Object.entries(statusCounts).map(([status, count]) => ({
-    name: status.charAt(0).toUpperCase() + status.slice(1),
+  const statusData = Object.entries(stats.statusCounts || {}).map(([status, count]) => ({
+    name: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
     count,
   }));
 
@@ -219,7 +166,7 @@ const AdminDashboard = () => {
               <CardTitle className="text-lg">Total Users</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{userCount}</p>
+              <p className="text-3xl font-bold">{stats.userCount}</p>
             </CardContent>
           </Card>
           
@@ -228,7 +175,7 @@ const AdminDashboard = () => {
               <CardTitle className="text-lg">Total Ideas</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{ideaCount}</p>
+              <p className="text-3xl font-bold">{stats.ideaCount}</p>
             </CardContent>
           </Card>
           
@@ -237,7 +184,7 @@ const AdminDashboard = () => {
               <CardTitle className="text-lg">Experts</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{expertCount}</p>
+              <p className="text-3xl font-bold">{stats.expertCount}</p>
             </CardContent>
           </Card>
           
@@ -246,7 +193,7 @@ const AdminDashboard = () => {
               <CardTitle className="text-lg">Investors</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{investorCount}</p>
+              <p className="text-3xl font-bold">{stats.investorCount}</p>
             </CardContent>
           </Card>
         </div>
@@ -273,7 +220,7 @@ const AdminDashboard = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [value, 'Count']} />
+                  <RechartsTooltip formatter={(value) => [value, 'Count']} />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -292,7 +239,7 @@ const AdminDashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip />
+                  <RechartsTooltip />
                   <Bar dataKey="count" fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
@@ -322,21 +269,21 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="px-4 py-2 text-left">Title</th>
-                        <th className="px-4 py-2 text-left">Status</th>
-                        <th className="px-4 py-2 text-left">Category</th>
-                        <th className="px-4 py-2 text-left">Created</th>
-                        <th className="px-4 py-2 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {filteredIdeas.map((idea) => (
-                        <tr key={idea.id} className="border-b hover:bg-gray-50">
-                          <td className="px-4 py-2">{idea.title}</td>
-                          <td className="px-4 py-2">
+                        <TableRow key={idea.id}>
+                          <TableCell>{idea.title}</TableCell>
+                          <TableCell>
                             <Badge variant={
                               idea.status === 'APPROVED' ? 'default' :
                               idea.status === 'AWAITING_APPROVAL' ? 'secondary' :
@@ -345,23 +292,23 @@ const AdminDashboard = () => {
                             }>
                               {idea.status}
                             </Badge>
-                          </td>
-                          <td className="px-4 py-2">{idea.category || '-'}</td>
-                          <td className="px-4 py-2">{new Date(idea.createdAt).toLocaleDateString()}</td>
-                          <td className="px-4 py-2 text-right">
+                          </TableCell>
+                          <TableCell>{idea.category || '-'}</TableCell>
+                          <TableCell>{new Date(idea.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Select
                                 defaultValue={idea.status}
-                                onValueChange={(value) => updateIdeaStatus(idea.id, value)}
+                                onValueChange={(value) => handleUpdateIdeaStatus(idea.id, value as IdeaStatus)}
                               >
                                 <SelectTrigger className="w-[130px]">
                                   <SelectValue placeholder="Change status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="draft">Draft</SelectItem>
-                                  <SelectItem value="pending">Pending</SelectItem>
-                                  <SelectItem value="approved">Approved</SelectItem>
-                                  <SelectItem value="rejected">Rejected</SelectItem>
+                                  <SelectItem value="AWAITING_APPROVAL">Awaiting Approval</SelectItem>
+                                  <SelectItem value="APPROVED">Approved</SelectItem>
+                                  <SelectItem value="ESTIMATED">Estimated</SelectItem>
+                                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
                                 </SelectContent>
                               </Select>
                               <Button 
@@ -374,16 +321,16 @@ const AdminDashboard = () => {
                               <Button 
                                 variant="destructive" 
                                 size="sm"
-                                onClick={() => deleteIdea(idea.id)}
+                                onClick={() => handleDeleteIdea(idea.id)}
                               >
                                 Delete
                               </Button>
                             </div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
@@ -405,19 +352,19 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="px-4 py-2 text-left">User</th>
-                        <th className="px-4 py-2 text-left">Email</th>
-                        <th className="px-4 py-2 text-left">Role</th>
-                        <th className="px-4 py-2 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {filteredUsers.map((user) => (
-                        <tr key={user.id} className="border-b hover:bg-gray-50">
-                          <td className="px-4 py-2">
+                        <TableRow key={user.id}>
+                          <TableCell>
                             <div className="flex items-center gap-2">
                               <Avatar className="h-8 w-8">
                                 <AvatarImage src={user.avatarUrl} alt={user.name} />
@@ -425,9 +372,9 @@ const AdminDashboard = () => {
                               </Avatar>
                               <span>{user.name}</span>
                             </div>
-                          </td>
-                          <td className="px-4 py-2">{user.email}</td>
-                          <td className="px-4 py-2">
+                          </TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>
                             <Badge variant={
                               user.role === 'ADMIN' ? 'destructive' :
                               user.role === 'EXPERT' ? 'default' :
@@ -436,29 +383,29 @@ const AdminDashboard = () => {
                             }>
                               {user.role}
                             </Badge>
-                          </td>
-                          <td className="px-4 py-2 text-right">
+                          </TableCell>
+                          <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Select
                                 defaultValue={user.role}
-                                onValueChange={(value: UserRole) => updateUserRole(user.id, value)}
+                                onValueChange={(value: UserRole) => handleUpdateUserRole(user.id, value)}
                               >
                                 <SelectTrigger className="w-[140px]">
                                   <SelectValue placeholder="Change role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="idea-holder">Idea Holder</SelectItem>
-                                  <SelectItem value="expert">Expert</SelectItem>
-                                  <SelectItem value="investor">Investor</SelectItem>
-                                  <SelectItem value="admin">Admin</SelectItem>
+                                  <SelectItem value="IDEA_HOLDER">Idea Holder</SelectItem>
+                                  <SelectItem value="EXPERT">Expert</SelectItem>
+                                  <SelectItem value="INVESTOR">Investor</SelectItem>
+                                  <SelectItem value="ADMIN">Admin</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>

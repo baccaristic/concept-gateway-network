@@ -131,7 +131,7 @@ const Header = ({ user }: HeaderProps) => {
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                      <Link onClick={handleSignOut} className="w-full">Logout</Link>
+                      <Link to="/" onClick={handleSignOut} className="w-full">Logout</Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
