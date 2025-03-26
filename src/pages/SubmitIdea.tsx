@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ideasApi } from '@/services/api';
 
 const categories = [
   "Technology",
@@ -46,22 +46,15 @@ const SubmitIdea = () => {
     try {
       setIsSubmitting(true);
 
-      const rep = await fetch('http://localhost:8083/ideas/new', {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem('token')}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          category,
-          estimated_budget: estimatedBudget ? Number(estimatedBudget) : null})
+      await ideasApi.submitIdea({
+        title,
+        description,
+        category,
+        estimated_budget: estimatedBudget ? Number(estimatedBudget) : undefined
       });
-      if (rep.ok) {
-        toast.success('Your idea has been submitted successfully!');
-        navigate('/dashboard');
-      }
+      
+      toast.success('Your idea has been submitted successfully!');
+      navigate('/dashboard');
       
     } catch (error) {
       console.error('Error submitting idea:', error);

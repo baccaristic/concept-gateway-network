@@ -20,30 +20,30 @@ import {
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UserRole, Idea } from '@/types';
-import {useAuth} from "@/contexts/AuthContext.tsx";
+import { useAuth } from "@/contexts/AuthContext.tsx";
+import { ideasApi } from '@/services/api';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
-  const {user} = useAuth()
+  const {user} = useAuth();
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-
-    fetch('http://localhost:8083/ideas/my-ideas', {
-      method: 'GET',
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
+    const fetchIdeas = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedIdeas = await ideasApi.getMyIdeas();
+        setIdeas(fetchedIdeas);
+      } catch (error) {
+        console.error('Error fetching ideas:', error);
+        toast.error('Failed to load ideas');
+      } finally {
+        setIsLoading(false);
       }
-    }).then(
-        (response) => {
-          response.json().then(
-              (ideas) => {
-                console.log(ideas);
-                setIdeas(ideas)
-              }
-          )
-        }
-    )
+    };
+    
+    fetchIdeas();
   }, []);
 
   // Stats based on the user role
@@ -173,7 +173,7 @@ const Dashboard = () => {
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-sm text-gray-500">Welcome back, {user.name}</p>
+            <p className="text-sm text-gray-500">Welcome back, {user?.name}</p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { User } from "@/types";
+import { authApi, userApi } from "@/services/api";
 
 interface AuthContextType {
   user: User | null;
@@ -38,21 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, name: string, role: string) => {
     try {
       setIsLoading(true);
-      const rep = await fetch('http://localhost:8083/auth/register', {
-        method: 'POST',
-        headers: {
-          "Content-Type": 'application/json',
-        },
-        body: JSON.stringify({email, password, name, role})
-      });
-      if (rep.ok) {
-        toast.success('Registration successful! Please check your email for confirmation.');
-        navigate('/login');
-      }
-      else {
-        const response = await rep.text();
-        toast.error(`Error signing up: ${response}`);
-      }
+      await authApi.register(email, password, name, role);
+      toast.success('Registration successful! Please check your email for confirmation.');
+      navigate('/login');
     } catch (error) {
       toast.error(`Error signing up: ${error.message}`);
     } finally {
@@ -63,24 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const rep = await fetch('http://localhost:8083/auth/login', {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({email, password})
-      });
-      if (rep.ok) {
-        const data = await rep.json();
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setUser(data.user);
-        navigate('/dashboard');
-      }
-      else {
-        const response = await rep.text();
-        toast.error(`Error signing in: ${response}`)
-      }
+      const data = await authApi.login(email, password);
+      
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+      navigate('/dashboard');
     } catch (error) {
       toast.error(`Error signing in: ${error.message}`);
     } finally {
