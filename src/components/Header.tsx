@@ -12,8 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {useAuth} from "@/contexts/AuthContext.tsx";
-import {User} from "@/types";
+import { useAuth } from "@/contexts/AuthContext.tsx";
+import { User } from "@/types";
 
 interface HeaderProps {
   user?: User
@@ -23,7 +23,7 @@ const Header = ({ user }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  const {signOut} = useAuth();
+  const { signOut } = useAuth();
 
   // Navigation links based on user role
   const getNavLinks = () => {
@@ -37,20 +37,20 @@ const Header = ({ user }: HeaderProps) => {
     const links = [{ name: 'Dashboard', path: '/dashboard' }];
 
     switch (user.role) {
-      case 'idea-holder':
+      case 'IDEA_HOLDER':
         links.push({ name: 'My Ideas', path: '/my-ideas' });
         break;
-      case 'expert':
+      case 'EXPERT':
         links.push({ name: 'Ideas to Estimate', path: '/expert-dashboard' });
         break;
-      case 'admin':
+      case 'ADMIN':
         links.push(
           { name: 'Admin Dashboard', path: '/admin-dashboard' },
           { name: 'Ideas Management', path: '/ideas-management' },
           { name: 'Users', path: '/users' }
         );
         break;
-      case 'investor':
+      case 'INVESTOR':
         links.push({ name: 'Explore Ideas', path: '/explore' });
         break;
     }
@@ -102,7 +102,7 @@ const Header = ({ user }: HeaderProps) => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage src={user.avatarUrl} alt={user.name} />
                         <AvatarFallback className="bg-primary/10 text-primary">
                           {user.name.charAt(0)}
                         </AvatarFallback>
@@ -124,7 +124,7 @@ const Header = ({ user }: HeaderProps) => {
                     <DropdownMenuItem>
                       <Link to="/settings" className="w-full">Settings</Link>
                     </DropdownMenuItem>
-                    {user.role === 'admin' && (
+                    {user.role === 'ADMIN' && (
                       <DropdownMenuItem>
                         <Link to="/admin-dashboard" className="w-full">Admin Dashboard</Link>
                       </DropdownMenuItem>

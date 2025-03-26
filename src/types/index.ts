@@ -44,8 +44,12 @@ export interface Profile {
   avatarUrl?: string;
 }
 
-export interface User extends Profile {
-  avatar?: string;
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatarUrl?: string;
 }
 
 export type UserRole = 'IDEA_HOLDER' | 'INVESTOR' | 'EXPERT' | 'ADMIN';

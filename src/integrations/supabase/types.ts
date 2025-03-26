@@ -221,7 +221,7 @@ export type Database = {
           email: string
           id: string
           name: string
-          role: string
+          user_role: string
         }
         Insert: {
           avatar_url?: string | null
@@ -229,7 +229,7 @@ export type Database = {
           email: string
           id: string
           name: string
-          role: string
+          user_role: string
         }
         Update: {
           avatar_url?: string | null
@@ -237,7 +237,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
-          role?: string
+          user_role?: string
         }
         Relationships: []
       }

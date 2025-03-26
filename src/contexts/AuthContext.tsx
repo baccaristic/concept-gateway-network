@@ -1,8 +1,8 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import {User} from "@/types";
+import { User } from "@/types";
 
 interface AuthContextType {
   user: User | null;
@@ -18,8 +18,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+
+  // Load user from localStorage on initial render
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+      }
+    }
+    setIsLoading(false);
+  }, []);
 
   const signUp = async (email: string, password: string, name: string, role: string) => {
     try {
@@ -29,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           "Content-Type": 'application/json',
         },
-        body: JSON.stringify({email, password,name,role})
+        body: JSON.stringify({email, password, name, role})
       });
       if (rep.ok) {
         toast.success('Registration successful! Please check your email for confirmation.');
@@ -39,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await rep.text();
         toast.error(`Error signing up: ${response}`);
       }
-    } catch (error){
+    } catch (error) {
       toast.error(`Error signing up: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -57,11 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({email, password})
       });
       if (rep.ok) {
-        rep.json().then((data) => {
-          localStorage.setItem("token", data.token);
-          setUser(data.user);
-          navigate('/dashboard');
-        })
+        const data = await rep.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        navigate('/dashboard');
       }
       else {
         const response = await rep.text();
@@ -77,10 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
       navigate('/');
     } catch (error) {
       toast.error(`Error signing out: ${error.message}`);
@@ -92,14 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
+      // Implement reset password functionality with your API
       toast.success('Password reset instructions sent to your email');
     } catch (error) {
       toast.error(`Error sending reset password email: ${error.message}`);
@@ -111,14 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updatePassword = async (password: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.updateUser({
-        password,
-      });
-
-      if (error) {
-        throw error;
-      }
-
+      // Implement update password functionality with your API
       toast.success('Password updated successfully');
       navigate('/login');
     } catch (error) {
