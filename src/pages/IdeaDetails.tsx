@@ -88,6 +88,15 @@ const IdeaDetails = () => {
     }
   };
 
+  const getDashboardLink = () => {
+    switch (user.role) {
+      case "ADMIN":
+        return "/admin-dashboard"
+      default:
+        return "/dashboard"
+    }
+  }
+
   if (loading) {
     return (
       <Layout>
@@ -123,7 +132,7 @@ const IdeaDetails = () => {
   return (
     <Layout user={user ?? undefined}>
       <div className="container py-8">
-        <Link to="/dashboard" className="flex items-center text-primary hover:underline mb-6">
+        <Link to={getDashboardLink()} className="flex items-center text-primary hover:underline mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Link>

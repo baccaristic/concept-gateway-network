@@ -210,7 +210,7 @@ export const adminApi = {
   
   // Get idea by ID (admin & authorized users)
   getIdeaById: async (ideaId: string): Promise<Idea> => {
-    const response = await fetch(`${API_BASE_URL}/admin/ideas/${ideaId}`, {
+    const response = await fetch(`${API_BASE_URL}/ideas/${ideaId}`, {
       headers: setAuthHeader()
     });
     
