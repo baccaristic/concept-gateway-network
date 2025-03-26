@@ -3,16 +3,12 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { 
   Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription
+  CardContent,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Idea, User } from '@/types';
+import {Idea, IdeaStatus, User} from '@/types';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { 
@@ -21,82 +17,15 @@ import {
   Clock, 
   CheckCircle,
   Eye,
-  Filter,
-  Download,
   AlertCircle
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { useForm } from 'react-hook-form';
+import {useAuth} from "@/contexts/AuthContext.tsx";
+import {expertApi} from "@/services/api.ts";
+import {Link} from "react-router-dom";
+import {EstimationDialog} from "@/components/EstimationDialog.tsx";
 
 // Mock data
-const mockUser: User = {
-  id: '123',
-  name: 'Jane Expert',
-  email: 'jane.expert@example.com',
-  role: 'expert',
-  avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-};
 
-const mockIdeas: Idea[] = [
-  {
-    id: '1',
-    title: 'AI-Powered Food Waste Reduction System',
-    description: 'A system that uses AI to track and reduce food waste in restaurants and homes. The system would use computer vision to identify food items and their quantity, track their use-by dates, and suggest recipes or donation opportunities for items approaching expiration.',
-    createdAt: '2023-08-15T10:30:00Z',
-    updatedAt: '2023-08-15T10:30:00Z',
-    owner_id: '1',
-    status: 'approved',
-    category: 'Sustainability',
-    tags: ['AI', 'Food', 'Sustainability', 'Computer Vision'],
-  },
-  {
-    id: '2',
-    title: 'Eco-Friendly Packaging Solution',
-    description: 'Biodegradable packaging made from agricultural waste that can replace plastic packaging for food and consumer goods. This innovative solution uses a proprietary process to convert rice husks, corn stalks, and other agricultural byproducts into durable, water-resistant packaging.',
-    createdAt: '2023-09-20T14:15:00Z',
-    updatedAt: '2023-09-25T09:45:00Z',
-    owner_id: '2',
-    status: 'approved',
-    category: 'Sustainability',
-    tags: ['Eco-friendly', 'Packaging', 'Waste Reduction', 'Biodegradable'],
-  },
-  {
-    id: '3',
-    title: 'AR Learning Platform for Students',
-    description: 'Augmented Reality platform that makes learning interactive and engaging for K-12 students. The platform allows teachers to create immersive learning experiences across various subjects, from biology to history, enhancing student engagement and knowledge retention.',
-    createdAt: '2023-10-05T11:20:00Z',
-    updatedAt: '2023-10-06T11:20:00Z',
-    owner_id: '3',
-    status: 'approved',
-    category: 'Education',
-    tags: ['AR', 'Education', 'Technology', 'Learning'],
-  },
-  {
-    id: '4',
-    title: 'Smart Water Conservation System',
-    description: 'IoT-based water management system for residential and commercial buildings that monitors usage patterns, detects leaks, and optimizes water consumption. The system uses machine learning to provide personalized recommendations for reducing water waste.',
-    createdAt: '2023-11-12T09:10:00Z',
-    updatedAt: '2023-11-15T16:30:00Z',
-    owner_id: '4',
-    status: 'approved',
-    category: 'Sustainability',
-    tags: ['IoT', 'Water Conservation', 'Smart Home', 'Sustainability'],
-  },
-  {
-    id: '5',
-    title: 'Community-Based Mental Health Platform',
-    description: 'A mobile platform that connects individuals with peer support groups and licensed therapists within their community. The platform uses a proprietary matching algorithm to connect users with the most suitable support resources based on their needs and preferences.',
-    createdAt: '2023-12-03T13:45:00Z',
-    updatedAt: '2023-12-05T10:20:00Z',
-    owner_id: '5',
-    status: 'estimated',
-    estimatedPrice: 65000,
-    category: 'Healthcare',
-    tags: ['Mental Health', 'Community', 'Healthcare', 'Mobile App'],
-  },
-];
 
 interface EstimationFormValues {
   estimatedPrice: number;
@@ -104,36 +33,33 @@ interface EstimationFormValues {
 }
 
 const ExpertDashboard = () => {
-  const [user] = useState(mockUser);
-  const [ideas, setIdeas] = useState<Idea[]>(mockIdeas);
+  const {user} = useAuth();
+  const [ideas, setIdeas] = useState<Idea[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [estimateDialogOpen, setEstimateDialogOpen] = useState(false);
   const [estimationPrice, setEstimationPrice] = useState(50000);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const form = useForm<EstimationFormValues>({
-    defaultValues: {
-      estimatedPrice: 50000,
-      notes: '',
-    },
-  });
+
+  useEffect(() => {
+    expertApi.getIdeasToEstimate().then(
+        (data) => {
+          setIdeas(data)
+        }
+    )
+  }, []);
 
   // Filter ideas to only show approved but not estimated
   const ideasToEstimate = ideas.filter(idea => 
-    idea.status === 'approved' && !idea.estimatedPrice
+    idea.status === 'APPROVED' && !idea.estimatedPrice
   );
   
   const estimatedIdeas = ideas.filter(idea => 
-    idea.status === 'estimated' && idea.estimatedPrice
+    idea.status === 'ESTIMATED' && idea.estimatedPrice
   );
 
   const handleOpenEstimateDialog = (idea: Idea) => {
     setSelectedIdea(idea);
     setEstimationPrice(50000); // Reset to default
-    form.reset({
-      estimatedPrice: 50000,
-      notes: '',
-    });
     setEstimateDialogOpen(true);
   };
 
@@ -149,7 +75,7 @@ const ExpertDashboard = () => {
         idea.id === selectedIdea.id 
           ? { 
               ...idea, 
-              status: 'estimated' as 'estimated', 
+              status: "ESTIMATED" as IdeaStatus,
               estimatedPrice: values.estimatedPrice,
               updatedAt: new Date().toISOString()
             } 
@@ -296,76 +222,12 @@ const ExpertDashboard = () => {
       </div>
       
       {/* Estimation Dialog */}
-      <Dialog open={estimateDialogOpen} onOpenChange={setEstimateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Estimate Idea Price</DialogTitle>
-            <DialogDescription>
-              {selectedIdea?.title}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmitEstimation)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="estimatedPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estimated Development Cost</FormLabel>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">$10,000</span>
-                        <span className="text-xl font-bold">${field.value.toLocaleString()}</span>
-                        <span className="text-sm text-muted-foreground">$200,000</span>
-                      </div>
-                      <Slider
-                        defaultValue={[field.value]}
-                        min={10000}
-                        max={200000}
-                        step={5000}
-                        onValueChange={(value) => field.onChange(value[0])}
-                      />
-                    </div>
-                    <FormDescription>
-                      Provide your best estimate for the development cost of this idea.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estimation Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Add additional context to your estimation..."
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      These notes will be shared with the idea owner and admin.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter>
-                <Button variant="outline" type="button" onClick={() => setEstimateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Submitting..." : "Submit Estimation"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <EstimationDialog
+          estimateDialogOpen={estimateDialogOpen}
+          setEstimateDialogOpen={setEstimateDialogOpen}
+          handleSubmitEstimation={handleSubmitEstimation}
+          selectedIdea={selectedIdea}
+          isLoading={isLoading}/>
     </Layout>
   );
 };
@@ -430,8 +292,10 @@ const IdeaCard = ({ idea, isEstimated = false, onEstimate, onViewDetails }: Idea
                     <Eye className="h-4 w-4 mr-1" /> View Details
                   </Button>
                 )}
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-1" /> Download Brief
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/ideas/${idea.id}`}>
+                    <Eye className="h-4 w-4 mr-1" /> View
+                  </Link>
                 </Button>
               </div>
             </div>

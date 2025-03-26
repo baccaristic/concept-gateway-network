@@ -51,7 +51,7 @@ const Header = ({ user }: HeaderProps) => {
         );
         break;
       case 'INVESTOR':
-        links.push({ name: 'Explore Ideas', path: '/explore' });
+        links.push({ name: 'Explore Ideas', path: '/investor-dashboard' });
         break;
     }
 

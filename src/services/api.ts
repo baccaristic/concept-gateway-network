@@ -72,6 +72,18 @@ export const ideasApi = {
     
     return await response.json();
   },
+
+  getEstimatedIdeas: async (): Promise<Idea[]> => {
+    const response = await fetch(`${API_BASE_URL}/ideas/estimated`, {
+      headers: setAuthHeader()
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch ideas');
+    }
+
+    return await response.json();
+  },
   
   submitIdea: async (ideaData: {
     title: string;
@@ -147,6 +159,18 @@ export const userApi = {
     return await response.json();
   }
 };
+
+export const expertApi = {
+  getIdeasToEstimate: async (): Promise<Idea[]> => {
+    const response = await fetch(`${API_BASE_URL}/ideas/estimate`, {
+      headers: setAuthHeader()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    return await response.json();
+  }
+}
 
 /**
  * Admin related API calls

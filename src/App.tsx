@@ -17,6 +17,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InvestorDashboard from "@/pages/InvestorDashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,11 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/ideas/:ideaId" element={<IdeaDetails />} />
+            <Route path="/investor-dashboard" element={
+              <ProtectedRoute>
+                <InvestorDashboard/>
+              </ProtectedRoute>
+            } />
             <Route path="/expert-dashboard" element={
               <ProtectedRoute>
                 <ExpertDashboard />

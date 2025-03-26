@@ -92,6 +92,8 @@ const IdeaDetails = () => {
     switch (user.role) {
       case "ADMIN":
         return "/admin-dashboard"
+      case "EXPERT":
+        return "/expert-dashboard"
       default:
         return "/dashboard"
     }
@@ -248,6 +250,7 @@ const IdeaDetails = () => {
             </div>
           </CardContent>
         </Card>
+        { user.role === "EXPERT" && (<Button>Estimate</Button>)}
 
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Comments ({idea.comments?.length || 0})</h3>
