@@ -34,6 +34,20 @@ export function useAdminService() {
     }
   };
 
+  const addExpert = async (expertData: { name: string, email: string, password: string }) => {
+    setIsLoading(true);
+    try {
+      const newExpert = await adminApi.addExpert(expertData);
+      toast.success('Expert added successfully');
+      return newExpert;
+    } catch (error) {
+      toast.error(`Error adding expert: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getAllIdeas = async () => {
     setIsLoading(true);
     try {
@@ -87,13 +101,28 @@ export function useAdminService() {
     }
   };
 
+  const getIdeaById = async (ideaId: string) => {
+    setIsLoading(true);
+    try {
+      const idea = await adminApi.getIdeaById(ideaId);
+      return idea;
+    } catch (error) {
+      toast.error(`Error fetching idea details: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     getAllUsers,
     updateUserRole,
+    addExpert,
     getAllIdeas,
     updateIdeaStatus,
     deleteIdea,
-    getDashboardStats
+    getDashboardStats,
+    getIdeaById
   };
 }

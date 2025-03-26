@@ -29,6 +29,21 @@ All admin endpoints should be secured with JWT authentication and restricted to 
 - **Response**: Updated User object
 - **Authentication**: Required (Admin only)
 
+#### 3. Add Expert
+- **URL**: `/admin/experts`
+- **Method**: `POST`
+- **Description**: Creates a new user with the EXPERT role
+- **Request Body**:
+  ```json
+  { 
+    "name": "Expert Name",
+    "email": "expert@example.com",
+    "password": "securePassword"
+  }
+  ```
+- **Response**: Created User object
+- **Authentication**: Required (Admin only)
+
 ### Idea Management
 
 #### 1. Get All Ideas
@@ -38,7 +53,14 @@ All admin endpoints should be secured with JWT authentication and restricted to 
 - **Response**: Array of Idea objects
 - **Authentication**: Required (Admin only)
 
-#### 2. Update Idea Status
+#### 2. Get Idea by ID
+- **URL**: `/admin/ideas/{ideaId}`
+- **Method**: `GET`
+- **Description**: Retrieves a specific idea by ID
+- **Response**: Idea object
+- **Authentication**: Required (Admin only)
+
+#### 3. Update Idea Status
 - **URL**: `/admin/ideas/{ideaId}/status`
 - **Method**: `PUT`
 - **Description**: Updates an idea's status
@@ -49,7 +71,7 @@ All admin endpoints should be secured with JWT authentication and restricted to 
 - **Response**: Updated Idea object
 - **Authentication**: Required (Admin only)
 
-#### 3. Delete Idea
+#### 4. Delete Idea
 - **URL**: `/admin/ideas/{ideaId}`
 - **Method**: `DELETE`
 - **Description**: Deletes an idea
@@ -127,6 +149,13 @@ public class AdminController {
     public ResponseEntity<User> updateUserRole(@PathVariable String userId, @RequestBody RoleUpdateRequest request) {
         User updatedUser = userService.updateUserRole(userId, request.getRole());
         return ResponseEntity.ok(updatedUser);
+    }
+    
+    @PostMapping("/experts")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> addExpert(@RequestBody ExpertCreationRequest request) {
+        User expert = userService.createExpert(request.getName(), request.getEmail(), request.getPassword());
+        return ResponseEntity.status(HttpStatus.CREATED).body(expert);
     }
     
     // Additional endpoints for ideas and stats...

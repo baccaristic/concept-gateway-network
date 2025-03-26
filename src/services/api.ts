@@ -1,4 +1,3 @@
-
 /**
  * API service for handling all backend communication
  */
@@ -118,6 +117,17 @@ export const ideasApi = {
     }
     
     return await response.json();
+  },
+  
+  likeIdea: async (ideaId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/ideas/${ideaId}/like`, {
+      method: 'POST',
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to like idea');
+    }
   }
 };
 
@@ -170,6 +180,21 @@ export const adminApi = {
     return await response.json();
   },
   
+  // Add a new expert (admin only)
+  addExpert: async (expertData: { name: string, email: string, password: string }): Promise<User> => {
+    const response = await fetch(`${API_BASE_URL}/admin/experts`, {
+      method: 'POST',
+      headers: setAuthHeader(),
+      body: JSON.stringify(expertData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add expert');
+    }
+    
+    return await response.json();
+  },
+  
   // Get all ideas (admin only)
   getAllIdeas: async (): Promise<Idea[]> => {
     const response = await fetch(`${API_BASE_URL}/admin/ideas`, {
@@ -178,6 +203,19 @@ export const adminApi = {
     
     if (!response.ok) {
       throw new Error('Failed to fetch ideas');
+    }
+    
+    return await response.json();
+  },
+  
+  // Get idea by ID (admin & authorized users)
+  getIdeaById: async (ideaId: string): Promise<Idea> => {
+    const response = await fetch(`${API_BASE_URL}/admin/ideas/${ideaId}`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch idea details');
     }
     
     return await response.json();
@@ -231,4 +269,3 @@ export const adminApi = {
     return await response.json();
   }
 };
-

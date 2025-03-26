@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,106 +12,79 @@ import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Mock data
-const mockIdeas: Idea[] = [
-  {
-    id: "1",
-    title: "AI-Powered Personal Health Assistant",
-    description: "A mobile app that uses AI to track user health data and provide personalized recommendations for improving wellness. The app would integrate with wearable devices, analyze patterns in sleep, exercise, and nutrition, and offer actionable insights based on medical research.",
-    category: "Healthcare",
-    status: "approved",
-    estimatedBudget: 8500,
-    submittedBy: "user123",
-    submitterName: "Alex Johnson",
-    tags: ["AI", "Healthcare", "Mobile"],
-    createdAt: new Date("2023-05-15").toISOString(),
-    updatedAt: new Date("2023-05-15").toISOString(),
-    views: 142,
-    likes: 37,
-    attachments: [],
-    comments: [
-      {
-        id: "c1",
-        text: "This has great potential for preventative healthcare!",
-        user: "investor55",
-        userName: "Sarah Williams",
-        createdAt: new Date("2023-05-17").toISOString()
-      },
-      {
-        id: "c2",
-        text: "Have you considered adding integration with healthcare providers' systems?",
-        user: "expert12",
-        userName: "Dr. Michael Chen",
-        createdAt: new Date("2023-05-18").toISOString()
-      }
-    ]
-  },
-  {
-    id: "2",
-    title: "Sustainable Urban Farming Platform",
-    description: "A B2B SaaS platform that helps urban farming companies optimize their production, reduce resource consumption, and connect with local businesses. The platform would use IoT data from sensors, predictive analytics for harvest planning, and a marketplace for selling directly to restaurants and grocery stores.",
-    category: "Agriculture",
-    status: "pending",
-    submittedBy: "user456",
-    submitterName: "Jamie Smith",
-    tags: ["Sustainability", "Agriculture", "B2B", "IoT"],
-    createdAt: new Date("2023-06-02").toISOString(),
-    updatedAt: new Date("2023-06-02").toISOString(),
-    views: 98,
-    likes: 22,
-    attachments: [],
-    comments: []
-  },
-];
+import { ideasApi } from '@/services/api';
+import { useAdminService } from '@/hooks/useAdminService';
 
 const IdeaDetails = () => {
   const { ideaId } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const adminService = useAdminService();
+  
   const [idea, setIdea] = useState<Idea | null>(null);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating API fetch for the idea details
-    setTimeout(() => {
-      const foundIdea = mockIdeas.find(i => i.id === ideaId);
-      setIdea(foundIdea || null);
-      setLoading(false);
-    }, 500);
-  }, [ideaId]);
-
-  const handleAddComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-    
-    // In a real app, this would be an API call
-    console.log("Adding comment:", comment);
-    
-    // For demo purposes, add the comment to the idea object
-    if (idea) {
-      const newComment: Comment = {
-        id: `c${Date.now()}`,
-        text: comment,
-        user: "currentUser",
-        userName: "Current User",
-        createdAt: new Date().toISOString()
-      };
+    const fetchIdeaDetails = async () => {
+      if (!ideaId) return;
       
-      setIdea({
-        ...idea,
-        comments: [...(idea.comments || []), newComment]
-      });
+      setLoading(true);
+      try {
+        let ideaData: Idea;
+        
+        // Use different API endpoints based on user role
+        if (user && user.role === 'ADMIN') {
+          ideaData = await adminService.getIdeaById(ideaId);
+        } else {
+          ideaData = await ideasApi.getIdeaById(ideaId);
+        }
+        
+        setIdea(ideaData);
+      } catch (error) {
+        console.error('Error fetching idea details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIdeaDetails();
+  }, [ideaId, user]);
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim() || !ideaId) return;
+    
+    try {
+      const newComment = await ideasApi.addComment(ideaId, { text: comment });
+      
+      // Update local state with the new comment
+      if (idea) {
+        setIdea({
+          ...idea,
+          comments: [...(idea.comments || []), newComment]
+        });
+      }
       
       setComment('');
+    } catch (error) {
+      console.error('Error adding comment:', error);
     }
   };
 
-  const handleLike = () => {
-    if (idea) {
+  const handleLike = async () => {
+    if (!idea || !ideaId) return;
+    
+    try {
+      await ideasApi.likeIdea(ideaId);
+      
+      // Update local state
       setIdea({
         ...idea,
         likes: (idea.likes || 0) + 1
       });
+    } catch (error) {
+      console.error('Error liking idea:', error);
     }
   };
 
@@ -147,7 +121,7 @@ const IdeaDetails = () => {
   }
 
   return (
-    <Layout>
+    <Layout user={user ?? undefined}>
       <div className="container py-8">
         <Link to="/dashboard" className="flex items-center text-primary hover:underline mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -165,14 +139,24 @@ const IdeaDetails = () => {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                {idea.status === 'approved' && (
+                {idea.status === 'APPROVED' && (
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                     Approved
                   </Badge>
                 )}
-                {idea.status === 'pending' && (
+                {idea.status === 'AWAITING_APPROVAL' && (
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
-                    Pending
+                    Awaiting Approval
+                  </Badge>
+                )}
+                {idea.status === 'ESTIMATED' && (
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                    Estimated
+                  </Badge>
+                )}
+                {idea.status === 'CONFIRMED' && (
+                  <Badge variant="outline" className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+                    Confirmed
                   </Badge>
                 )}
                 {idea.category && (
@@ -206,14 +190,16 @@ const IdeaDetails = () => {
               </div>
             )}
 
-            <div>
-              <h3 className="font-semibold mb-2">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {idea.tags && idea.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline">{tag}</Badge>
-                ))}
+            {idea.tags && idea.tags.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {idea.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline">{tag}</Badge>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {idea.attachments && idea.attachments.length > 0 && (
               <div>

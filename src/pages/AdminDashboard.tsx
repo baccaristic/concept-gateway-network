@@ -18,6 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Idea, User, UserRole, IdeaStatus } from '@/types';
 import { useAdminService } from '@/hooks/useAdminService';
+import { AddExpertModal } from '@/components/admin/AddExpertModal';
+import { UserPlus } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -38,6 +40,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [showAddExpertModal, setShowAddExpertModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,6 +115,20 @@ const AdminDashboard = () => {
       
     } catch (error) {
       console.error('Error updating idea status:', error.message);
+    }
+  };
+
+  const handleExpertAdded = async () => {
+    try {
+      // Refresh users list
+      const usersData = await adminService.getAllUsers();
+      setUsers(usersData);
+      
+      // Refresh stats
+      const statsData = await adminService.getDashboardStats();
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error refreshing data after adding expert:', error);
     }
   };
 
@@ -338,10 +355,21 @@ const AdminDashboard = () => {
           
           <TabsContent value="users">
             <Card>
-              <CardHeader>
-                <CardTitle>Users Management</CardTitle>
-                <CardDescription>View and manage all users in the platform</CardDescription>
-                <div className="mt-4">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Users Management</CardTitle>
+                  <CardDescription>View and manage all users in the platform</CardDescription>
+                </div>
+                <Button 
+                  className="flex items-center gap-1"
+                  onClick={() => setShowAddExpertModal(true)}
+                >
+                  <UserPlus className="h-4 w-4 mr-1" />
+                  Add Expert
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
                   <Input
                     placeholder="Search users..."
                     value={userSearchTerm}
@@ -349,8 +377,7 @@ const AdminDashboard = () => {
                     className="max-w-xs"
                   />
                 </div>
-              </CardHeader>
-              <CardContent>
+                
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -412,6 +439,12 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <AddExpertModal 
+        isOpen={showAddExpertModal} 
+        onClose={() => setShowAddExpertModal(false)}
+        onExpertAdded={handleExpertAdded}
+      />
     </Layout>
   );
 };
