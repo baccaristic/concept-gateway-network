@@ -35,14 +35,18 @@ const PdfViewer = () => {
           document.title = `Agreement - ${agreementData.idea.title}`;
         }
         
-        // Generate HTML content for the PDF
-        const htmlContent = generateAgreementHtml(
-          agreementData, 
-          agreementData.signatureData
-        );
-        
-        // Only set innerHTML if the ref exists
+        // Generate HTML content for the PDF and set it to the DOM
+        // We'll use dangerouslySetInnerHTML instead of setting innerHTML directly
         if (pdfContentRef.current) {
+          const htmlContent = generateAgreementHtml(
+            agreementData, 
+            agreementData.signatureData
+          );
+          
+          // Log the HTML content to debug
+          console.log("Generated HTML content:", htmlContent);
+          
+          // Set the HTML content
           pdfContentRef.current.innerHTML = htmlContent;
         }
       } catch (error) {
@@ -71,7 +75,19 @@ const PdfViewer = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div id="pdf-content" ref={pdfContentRef} className="container mx-auto py-8"></div>
+      {/* Add a debugging message to see if agreement data is loaded correctly */}
+      {agreement && agreement.idea && (
+        <div className="container mx-auto pt-4 px-4 text-sm text-gray-500">
+          Agreement loaded: {agreement.idea.title} ({agreement.id})
+        </div>
+      )}
+      
+      {/* The PDF content container */}
+      <div 
+        id="pdf-content" 
+        ref={pdfContentRef} 
+        className="container mx-auto py-8"
+      ></div>
       
       <div className="fixed bottom-4 right-4 flex gap-2">
         <button 
