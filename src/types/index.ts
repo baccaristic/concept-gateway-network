@@ -54,4 +54,17 @@ export interface User {
 
 export type UserRole = 'IDEA_HOLDER' | 'INVESTOR' | 'EXPERT' | 'ADMIN';
 
-export type IdeaStatus = 'AWAITING_APPROVAL' | 'APPROVED' | 'ESTIMATED' | 'CONFIRMED'
+export type IdeaStatus = 'AWAITING_APPROVAL' | 'APPROVED' | 'ESTIMATED' | 'CONFIRMED';
+
+export type AgreementStatus = 'PENDING' | 'SIGNED' | 'APPROVED' | 'REJECTED';
+
+export interface Agreement {
+  id: string;
+  ideaId: string;
+  investorId: string;
+  status: AgreementStatus;
+  signatureData?: string;
+  signedAt?: string;
+  createdAt: string;
+  idea?: Idea;
+}

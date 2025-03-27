@@ -1,7 +1,7 @@
 /**
  * API service for handling all backend communication
  */
-import { Idea, User, Comment, UserRole, IdeaStatus } from "@/types";
+import { Idea, User, Comment, UserRole, IdeaStatus, Agreement } from "@/types";
 
 // Base API URL - change this to your Spring Boot server address in production
 const API_BASE_URL = 'http://localhost:8083';
@@ -171,6 +171,65 @@ export const expertApi = {
     return await response.json();
   }
 }
+
+/**
+ * Investor related API calls
+ */
+export const investorApi = {
+  // Get agreements by investor
+  getMyAgreements: async (): Promise<Agreement[]> => {
+    const response = await fetch(`${API_BASE_URL}/investor/agreements`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch agreements');
+    }
+    
+    return await response.json();
+  },
+  
+  // Create a new agreement
+  createAgreement: async (ideaId: string): Promise<Agreement> => {
+    const response = await fetch(`${API_BASE_URL}/investor/agreements`, {
+      method: 'POST',
+      headers: setAuthHeader(),
+      body: JSON.stringify({ ideaId })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create agreement');
+    }
+    
+    return await response.json();
+  },
+  
+  // Submit signed agreement document
+  submitSignedAgreement: async (agreementId: string, signatureData: string, file?: File): Promise<Agreement> => {
+    const formData = new FormData();
+    formData.append('agreementId', agreementId);
+    formData.append('signatureData', signatureData);
+    
+    if (file) {
+      formData.append('file', file);
+    }
+    
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/investor/agreements/${agreementId}/sign`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to submit signed agreement');
+    }
+    
+    return await response.json();
+  }
+};
 
 /**
  * Admin related API calls
