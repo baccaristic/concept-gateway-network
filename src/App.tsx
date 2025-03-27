@@ -15,6 +15,7 @@ import IdeaDetails from "./pages/IdeaDetails";
 import NotFound from "./pages/NotFound";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import PdfViewer from "./pages/PdfViewer";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InvestorDashboard from "@/pages/InvestorDashboard.tsx";
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/admin-dashboard" element={
               <AdminDashboard />
             } />
+            <Route path="/pdf-viewer" element={<PdfViewer />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

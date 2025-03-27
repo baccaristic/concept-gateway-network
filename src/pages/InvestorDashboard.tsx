@@ -1,11 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ExternalLink, FileText } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ExternalLink, FileText, FileDigit } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import AgreementDialog from "@/components/AgreementDialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { openAgreementPdf } from "@/utils/pdfGenerator";
 
 // Available categories for filtering
 const categories = [
@@ -145,6 +145,11 @@ const InvestorDashboard = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Handle opening the PDF viewer
+    const handleViewPdf = (agreement: Agreement) => {
+        openAgreementPdf(agreement);
     };
 
     const getStatusBadge = (status: string) => {
@@ -326,14 +331,27 @@ const InvestorDashboard = () => {
                                                             {getStatusBadge(agreement.status)}
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => handleIdeaSelect(agreement.ideaId)}
-                                                            >
-                                                                <ExternalLink className="h-4 w-4 mr-1" />
-                                                                View Idea
-                                                            </Button>
+                                                            <div className="flex gap-2">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => handleIdeaSelect(agreement.ideaId)}
+                                                                >
+                                                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                                                    View Idea
+                                                                </Button>
+                                                                
+                                                                {agreement.status === 'SIGNED' || agreement.status === 'APPROVED' ? (
+                                                                    <Button
+                                                                        variant="default"
+                                                                        size="sm"
+                                                                        onClick={() => handleViewPdf(agreement)}
+                                                                    >
+                                                                        <FileDigit className="h-4 w-4 mr-1" />
+                                                                        View PDF
+                                                                    </Button>
+                                                                ) : null}
+                                                            </div>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}

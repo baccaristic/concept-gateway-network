@@ -189,6 +189,19 @@ export const investorApi = {
     return await response.json();
   },
   
+  // Get agreement by ID
+  getAgreementById: async (agreementId: string): Promise<Agreement> => {
+    const response = await fetch(`${API_BASE_URL}/investor/agreements/${agreementId}`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch agreement');
+    }
+    
+    return await response.json();
+  },
+  
   // Create a new agreement
   createAgreement: async (ideaId: string): Promise<Agreement> => {
     const response = await fetch(`${API_BASE_URL}/investor/agreements`, {
