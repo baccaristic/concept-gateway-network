@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -17,7 +16,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('idea-holder');
+  const [role, setRole] = useState<UserRole>('IDEA_HOLDER');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{
     password?: string;

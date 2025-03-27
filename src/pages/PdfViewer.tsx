@@ -1,7 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Idea, Agreement } from "@/types";
+import { Agreement } from "@/types";
 import { investorApi } from "@/services/api";
 import { generateAgreementHtml } from "@/utils/pdfGenerator";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ const PdfViewer = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [agreement, setAgreement] = useState<Agreement | null>(null);
+  const pdfContentRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -34,12 +35,16 @@ const PdfViewer = () => {
           document.title = `Agreement - ${agreementData.idea.title}`;
         }
         
-        // Generate and insert HTML content
+        // Generate HTML content for the PDF
         const htmlContent = generateAgreementHtml(
           agreementData, 
           agreementData.signatureData
         );
-        document.getElementById("pdf-content")!.innerHTML = htmlContent;
+        
+        // Only set innerHTML if the ref exists
+        if (pdfContentRef.current) {
+          pdfContentRef.current.innerHTML = htmlContent;
+        }
       } catch (error) {
         console.error("Error fetching agreement:", error);
         toast({
@@ -66,7 +71,7 @@ const PdfViewer = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div id="pdf-content" className="container mx-auto py-8"></div>
+      <div id="pdf-content" ref={pdfContentRef} className="container mx-auto py-8"></div>
       
       <div className="fixed bottom-4 right-4 flex gap-2">
         <button 
