@@ -84,6 +84,17 @@ export const ideasApi = {
 
     return await response.json();
   },
+  getInvestorEstimatedIdeas: async (): Promise<Idea[]> => {
+    const response = await fetch(`${API_BASE_URL}/ideas/investor/estimated`, {
+      headers: setAuthHeader()
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch ideas');
+    }
+
+    return await response.json();
+  },
   
   submitIdea: async (ideaData: {
     title: string;

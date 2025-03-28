@@ -51,7 +51,7 @@ const InvestorDashboard = () => {
 
     const fetchIdeas = async () => {
         try {
-            const data = await ideasApi.getEstimatedIdeas();
+            const data = await ideasApi.getInvestorEstimatedIdeas();
             setIdeas(data);
         } catch (error) {
             console.error("Error fetching ideas:", error);
@@ -105,9 +105,18 @@ const InvestorDashboard = () => {
     };
 
     // Handle idea selection for viewing details
-    const handleIdeaSelect = (ideaId: string) => {
-        navigate(`/ideas/${ideaId}`);
+    const handleIdeaSelect = <T extends Idea & {canView: boolean}>(idea: T) => {
+        if (idea.canView) {
+            navigate(`/ideas/${idea.id}`);
+        }
+        else {
+            handleCreateAgreement(idea);
+        }
     };
+
+    const handleIdeaSelectFromAgreement = (ideaId: string) => {
+        navigate(`/ideas/${ideaId}`);
+    }
 
     // Handle agreement creation
     const handleCreateAgreement = (idea: Idea) => {
@@ -134,6 +143,7 @@ const InvestorDashboard = () => {
             
             // Refresh agreements list
             fetchAgreements();
+            fetchIdeas();
             setAgreementDialogOpen(false);
         } catch (error) {
             console.error("Error signing agreement:", error);
@@ -265,18 +275,10 @@ const InvestorDashboard = () => {
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
-                                                                    onClick={() => handleIdeaSelect(idea.id)}
+                                                                    onClick={() => handleIdeaSelect(idea)}
                                                                 >
                                                                     <ExternalLink className="h-4 w-4 mr-1" />
                                                                     Details
-                                                                </Button>
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    onClick={() => handleCreateAgreement(idea)}
-                                                                >
-                                                                    <FileText className="h-4 w-4 mr-1" />
-                                                                    Invest
                                                                 </Button>
                                                             </div>
                                                         </TableCell>
@@ -335,7 +337,7 @@ const InvestorDashboard = () => {
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
-                                                                    onClick={() => handleIdeaSelect(agreement.ideaId)}
+                                                                    onClick={() => handleIdeaSelectFromAgreement(agreement.ideaId)}
                                                                 >
                                                                     <ExternalLink className="h-4 w-4 mr-1" />
                                                                     View Idea

@@ -34,7 +34,7 @@ export const generateAgreementHtml = (
     : "Pending";
 
   // Add some debugging text to confirm content generation
-  const debugInfo = `<!-- Agreement ID: ${agreement.id}, Idea: ${idea.title} -->`;
+  const debugInfo = `<!-- Agreement ID: ${agreement.id} HMMMMMMMM, Idea: ${idea.title} -->`;
 
   return `
     ${debugInfo}

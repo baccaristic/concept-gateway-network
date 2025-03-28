@@ -5,15 +5,19 @@ import { Agreement } from "@/types";
 import { investorApi } from "@/services/api";
 import { generateAgreementHtml } from "@/utils/pdfGenerator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 const PdfViewer = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
   const [agreement, setAgreement] = useState<Agreement | null>(null);
-  const pdfContentRef = useRef<HTMLDivElement>(null);
+  const pdfContentRef = useRef<HTMLDivElement>();
   const location = useLocation();
 
+  const handleOnClick = () => {
+    setGenerating(true);
+    window.print();
+  }
   useEffect(() => {
     const fetchAgreement = async () => {
       try {
@@ -37,7 +41,9 @@ const PdfViewer = () => {
         
         // Generate HTML content for the PDF and set it to the DOM
         // We'll use dangerouslySetInnerHTML instead of setting innerHTML directly
+        console.log(pdfContentRef);
         if (pdfContentRef.current) {
+          console.log(agreementData);
           const htmlContent = generateAgreementHtml(
             agreementData, 
             agreementData.signatureData
@@ -62,16 +68,7 @@ const PdfViewer = () => {
     };
 
     fetchAgreement();
-  }, [location.search, toast]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-lg">Loading agreement...</span>
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -88,21 +85,22 @@ const PdfViewer = () => {
         ref={pdfContentRef} 
         className="container mx-auto py-8"
       ></div>
-      
-      <div className="fixed bottom-4 right-4 flex gap-2">
-        <button 
-          className="bg-primary text-white px-4 py-2 rounded shadow hover:bg-primary/90 transition-colors"
-          onClick={() => window.print()}
-        >
-          Print / Save as PDF
-        </button>
-        <button 
-          className="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition-colors"
-          onClick={() => window.close()}
-        >
-          Close
-        </button>
-      </div>
+      {!generating && (
+          <div className="fixed bottom-4 right-4 flex gap-2">
+            <button
+                className="bg-primary text-white px-4 py-2 rounded shadow hover:bg-primary/90 transition-colors"
+                onClick={handleOnClick}
+            >
+              Print / Save as PDF
+            </button>
+            <button
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition-colors"
+                onClick={() => window.close()}
+            >
+              Close
+            </button>
+          </div>
+      )}
     </div>
   );
 };
