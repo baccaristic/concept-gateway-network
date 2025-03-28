@@ -17,6 +17,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PdfViewer from "./pages/PdfViewer";
 import { AuthProvider } from "./contexts/AuthContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InvestorDashboard from "@/pages/InvestorDashboard.tsx";
 
@@ -29,40 +30,42 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/submit-idea" element={
-              <ProtectedRoute>
-                <SubmitIdea />
-              </ProtectedRoute>
-            } />
-            <Route path="/ideas/:ideaId" element={<IdeaDetails />} />
-            <Route path="/investor-dashboard" element={
-              <ProtectedRoute>
-                <InvestorDashboard/>
-              </ProtectedRoute>
-            } />
-            <Route path="/expert-dashboard" element={
-              <ProtectedRoute>
-                <ExpertDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin-dashboard" element={
-              <AdminDashboard />
-            } />
-            <Route path="/pdf-viewer" element={<PdfViewer />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <NotificationProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/submit-idea" element={
+                <ProtectedRoute>
+                  <SubmitIdea />
+                </ProtectedRoute>
+              } />
+              <Route path="/ideas/:ideaId" element={<IdeaDetails />} />
+              <Route path="/investor-dashboard" element={
+                <ProtectedRoute>
+                  <InvestorDashboard/>
+                </ProtectedRoute>
+              } />
+              <Route path="/expert-dashboard" element={
+                <ProtectedRoute>
+                  <ExpertDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin-dashboard" element={
+                <AdminDashboard />
+              } />
+              <Route path="/pdf-viewer" element={<PdfViewer />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </NotificationProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

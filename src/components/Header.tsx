@@ -1,193 +1,235 @@
 
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  Menu, X, LogOut, User, Settings, UserPlus, 
+  BookOpen, Lightbulb, DollarSign, FileCheck
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, X, Bell, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from "@/contexts/AuthContext.tsx";
-import { User } from "@/types";
+import { useAuth } from '@/contexts/AuthContext';
+import { User as UserType } from '@/types';
+import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
-  user?: User
+  user?: UserType;
 }
 
 const Header = ({ user }: HeaderProps) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-  const { signOut } = useAuth();
-
-  // Navigation links based on user role
-  const getNavLinks = () => {
-    if (!user) {
-      return [
-        { name: 'Home', path: '/' },
-        { name: 'About', path: '/about' },
-      ];
-    }
-
-    const links = [{ name: 'Dashboard', path: '/dashboard' }];
-
-    switch (user.role) {
-      case 'IDEA_HOLDER':
-        links.push({ name: 'My Ideas', path: '/my-ideas' });
-        break;
-      case 'EXPERT':
-        links.push({ name: 'Ideas to Estimate', path: '/expert-dashboard' });
-        break;
-      case 'ADMIN':
-        links.push(
-          { name: 'Admin Dashboard', path: '/admin-dashboard' },
-          { name: 'Ideas Management', path: '/ideas-management' },
-          { name: 'Users', path: '/users' }
-        );
-        break;
-      case 'INVESTOR':
-        links.push({ name: 'Explore Ideas', path: '/investor-dashboard' });
-        break;
-    }
-
-    return links;
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
-  const navLinks = getNavLinks();
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-  const handleSignOut = () => {
-    signOut();
-  }
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const getRouteForUserRole = (role: string) => {
+    switch (role?.toLowerCase()) {
+      case 'admin':
+        return '/admin-dashboard';
+      case 'expert':
+        return '/expert-dashboard';
+      case 'investor':
+        return '/investor-dashboard';
+      case 'idea-holder':
+      default:
+        return '/dashboard';
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-200">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-xl font-semibold bg-clip-text text-primary">IdeaVest</span>
-            </Link>
-          </div>
+    <header className="bg-white border-b border-gray-200">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Link to="/" className="text-xl font-bold text-primary flex items-center">
+            <Lightbulb className="mr-2 h-6 w-6" />
+            <span className="hidden sm:inline">Concept Gateway</span>
+          </Link>
 
-          {/* Desktop navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`hover-transition text-sm font-medium ${
-                  location.pathname === link.path
-                    ? 'text-primary'
-                    : 'text-gray-700 hover:text-primary'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6">
+            <Link to="/" className="text-gray-600 hover:text-primary">Home</Link>
+            <Link to="/" className="text-gray-600 hover:text-primary">How It Works</Link>
+            <Link to="/" className="text-gray-600 hover:text-primary">About Us</Link>
+            <Link to="/" className="text-gray-600 hover:text-primary">Contact</Link>
           </nav>
 
-          <div className="flex items-center space-x-4">
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden text-gray-600" 
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+
+          {/* User Menu / Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary"></span>
-                </Button>
+              <div className="flex items-center gap-3">
+                {/* Notification Bell */}
+                <NotificationBell />
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center space-x-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatarUrl} alt={user.name} />
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {user.name.charAt(0)}
-                        </AvatarFallback>
+                    <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                      <Avatar>
+                        <AvatarImage src={user.avatarUrl} />
+                        <AvatarFallback>{getInitials(user.name || 'User')}</AvatarFallback>
                       </Avatar>
-                      <ChevronDown className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium">{user.name}</p>
-                        <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                        <p className="text-sm font-medium leading-none">{user.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user.email}
+                        </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Link to="/profile" className="w-full">Profile</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link to="/settings" className="w-full">Settings</Link>
-                    </DropdownMenuItem>
-                    {user.role === 'ADMIN' && (
-                      <DropdownMenuItem>
-                        <Link to="/admin-dashboard" className="w-full">Admin Dashboard</Link>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={() => navigate(getRouteForUserRole(user.role || ''))}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
                       </DropdownMenuItem>
-                    )}
+                      {user.role === 'idea-holder' && (
+                        <DropdownMenuItem onClick={() => navigate('/submit-idea')}>
+                          <Lightbulb className="mr-2 h-4 w-4" />
+                          <span>Submit Idea</span>
+                        </DropdownMenuItem>
+                      )}
+                      {user.role === 'investor' && (
+                        <DropdownMenuItem onClick={() => navigate('/investor-dashboard')}>
+                          <DollarSign className="mr-2 h-4 w-4" />
+                          <span>Investments</span>
+                        </DropdownMenuItem>
+                      )}
+                      {user.role === 'expert' && (
+                        <DropdownMenuItem onClick={() => navigate('/expert-dashboard')}>
+                          <FileCheck className="mr-2 h-4 w-4" />
+                          <span>Evaluations</span>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Link to="/" onClick={handleSignOut} className="w-full">Logout</Link>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </>
+              </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <Button asChild variant="ghost">
-                  <Link to="/login">Login</Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/register">Register</Link>
+                <Button variant="outline" onClick={() => navigate('/login')}>Log In</Button>
+                <Button onClick={() => navigate('/register')}>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Register
                 </Button>
               </div>
             )}
-
-            {/* Mobile menu button */}
-            <div className="flex md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="inline-flex items-center justify-center"
-              >
-                <span className="sr-only">Open main menu</span>
-                {mobileMenuOpen ? (
-                  <X className="h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <Menu className="h-6 w-6" aria-hidden="true" />
-                )}
-              </Button>
-            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4">
+            <nav className="flex flex-col space-y-4">
+              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Home</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>How It Works</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>About Us</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Contact</Link>
+              
+              {user ? (
+                <>
+                  <div className="pt-2 border-t border-gray-200">
+                    <Link 
+                      to={getRouteForUserRole(user.role || '')} 
+                      className="flex items-center text-gray-600 hover:text-primary"
+                      onClick={toggleMenu}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </div>
+                  {user.role === 'idea-holder' && (
+                    <Link 
+                      to="/submit-idea" 
+                      className="flex items-center text-gray-600 hover:text-primary"
+                      onClick={toggleMenu}
+                    >
+                      <Lightbulb className="mr-2 h-4 w-4" />
+                      Submit Idea
+                    </Link>
+                  )}
+                  <button 
+                    className="flex items-center text-red-600 hover:text-red-700"
+                    onClick={() => {
+                      handleLogout();
+                      toggleMenu();
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      navigate('/login');
+                      toggleMenu();
+                    }}
+                  >
+                    Log In
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      navigate('/register');
+                      toggleMenu();
+                    }}
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Register
+                  </Button>
+                </div>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
-
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 animate-fade-in">
-          <div className="container mx-auto px-4 pt-2 pb-3 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`block py-2 px-3 rounded-md text-base font-medium ${
-                  location.pathname === link.path
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </header>
   );
 };
