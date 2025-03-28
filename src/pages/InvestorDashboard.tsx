@@ -118,8 +118,7 @@ const InvestorDashboard = () => {
         navigate(`/ideas/${ideaId}`);
     }
 
-    // Handle agreement creation
-    const handleCreateAgreement = (idea: Idea) => {
+    const handleCreateAgreement = (idea: Idea & {canView: boolean}) => {
         setSelectedIdea(idea);
         setAgreementDialogOpen(true);
     };
@@ -369,13 +368,11 @@ const InvestorDashboard = () => {
                         </Card>
                     </TabsContent>
                 </Tabs>
-
-                {/* Agreement Dialog */}
-                <AgreementDialog
-                    open={agreementDialogOpen}
-                    onOpenChange={setAgreementDialogOpen}
-                    idea={selectedIdea}
-                    onSignAgreement={handleSignAgreement}
+                <AgreementDialog 
+                    open={agreementDialogOpen} 
+                    onOpenChange={setAgreementDialogOpen} 
+                    idea={selectedIdea ? {...selectedIdea} : null}
+                    onSignAgreement={handleSignAgreement} 
                     isLoading={isLoading}
                 />
             </div>
