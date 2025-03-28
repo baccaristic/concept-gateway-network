@@ -1,0 +1,201 @@
+
+{
+  "common": {
+    "appName": "IdeaVest",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "required": "Required",
+    "optional": "Optional",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Previous",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "emailPlaceholder": "name@example.com",
+    "passwordPlaceholder": "Enter your password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "rememberMe": "Remember me",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signInWith": "Sign in with {{provider}}",
+    "signUpWith": "Sign up with {{provider}}",
+    "orSignInWith": "Or sign in with",
+    "orSignUpWith": "Or sign up with",
+    "rememberPassword": "Remember your password?",
+    "sendResetInstructions": "Send Reset Instructions",
+    "resetPasswordFor": "Reset password for"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "ideas": "Ideas",
+    "submitIdea": "Submit Idea",
+    "myIdeas": "My Ideas",
+    "investorDashboard": "Investor Dashboard",
+    "expertDashboard": "Expert Dashboard",
+    "adminDashboard": "Admin Dashboard",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "home": {
+    "hero": {
+      "tagline": "Connecting Ideas & Investors",
+      "title": "Turn Your Innovative Ideas into Reality",
+      "description": "IdeaVest is a premium platform where idea creators connect with investors through a secure, transparent process, ensuring proper recognition and fair valuation.",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "title": "Platform Features",
+      "subtitle": "A Complete Ecosystem for Ideas",
+      "description": "Our platform caters to all stakeholders in the innovation process, from idea conception to investment.",
+      "ideaHolders": {
+        "title": "Idea Holders",
+        "description": "Submit your innovative ideas with detailed descriptions and attachments."
+      },
+      "experts": {
+        "title": "Experts",
+        "description": "Estimate value and pricing for ideas with professional insights."
+      },
+      "investors": {
+        "title": "Investors",
+        "description": "Discover and invest in promising ideas with complete copyright protection."
+      },
+      "administrators": {
+        "title": "Administrators",
+        "description": "Manage users and oversee the idea approval process."
+      }
+    },
+    "howItWorks": {
+      "title": "Simple Process",
+      "subtitle": "How IdeaVest Works",
+      "description": "Our streamlined process ensures that great ideas get recognized, valued, and funded.",
+      "steps": {
+        "step1": {
+          "title": "Submit Your Idea",
+          "description": "Idea holders register and submit their innovations with detailed descriptions and any relevant attachments."
+        },
+        "step2": {
+          "title": "Expert Evaluation",
+          "description": "Our expert panel reviews the submission and provides a detailed valuation and price estimation."
+        },
+        "step3": {
+          "title": "Admin Approval",
+          "description": "Administrators verify the idea, ensure compliance with platform guidelines, and approve it for listing."
+        },
+        "step4": {
+          "title": "Investor Discovery",
+          "description": "Approved ideas become visible to investors who can search and filter based on various criteria."
+        },
+        "step5": {
+          "title": "Secure Agreements",
+          "description": "Interested investors sign a digital copyright agreement to access detailed idea information."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Bring Your Ideas to Life?",
+      "description": "Join our platform today and become part of an ecosystem that values innovation and creates opportunities for both idea creators and investors.",
+      "signUp": "Sign Up Now",
+      "learnMore": "Learn More"
+    }
+  },
+  "ideaSubmission": {
+    "title": "Submit Your Idea",
+    "form": {
+      "title": "Idea Submission Form",
+      "description": "Tell us about your innovative idea and get feedback from experts.",
+      "ideaTitle": "Idea Title",
+      "ideaTitlePlaceholder": "Give your idea a catchy title",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your idea in detail...",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "estimatedBudget": "Estimated Budget ($)",
+      "estimatedBudgetPlaceholder": "Enter estimated budget",
+      "submit": "Submit Idea",
+      "submitting": "Submitting...",
+      "reviewNote": "Your idea will be reviewed by our experts."
+    },
+    "categories": {
+      "technology": "Technology",
+      "health": "Health",
+      "education": "Education",
+      "finance": "Finance",
+      "environment": "Environment",
+      "food": "Food",
+      "entertainment": "Entertainment",
+      "social": "Social",
+      "transportation": "Transportation",
+      "other": "Other"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "newNotification": "New Notification"
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "description": "Enter your email and we'll send you instructions to reset your password",
+    "email": "Email"
+  },
+  "agreement": {
+    "title": "Investment Agreement",
+    "description": "Please review the terms and sign the agreement below.",
+    "forIdea": "Investment Agreement for \"{{title}}\"",
+    "purpose": "Purpose",
+    "purposeText": "The purpose of this Agreement is to establish the terms and conditions under which the Investor will provide funding for the development of the idea titled \"{{title}}\" (the \"Project\").",
+    "investmentAmount": "Investment Amount",
+    "investmentAmountText": "The Investor agrees to invest the sum of ${{amount}} (the \"Investment Amount\") in the Project.",
+    "ownership": "Ownership and Profit Sharing",
+    "ownershipText": "In consideration for the Investment Amount, the Investor shall receive a 30% ownership stake in the Project and shall be entitled to 30% of all profits generated by the Project.",
+    "governance": "Governance",
+    "governanceText": "Major decisions regarding the Project shall require the approval of both the Investor and the Idea Owner.",
+    "term": "Term",
+    "termText": "This Agreement shall remain in effect until terminated by mutual agreement of the parties or as provided herein.",
+    "confidentiality": "Confidentiality",
+    "confidentialityText": "Both parties agree to maintain the confidentiality of all proprietary information related to the Project.",
+    "signatures": "Signatures",
+    "signaturesText": "By signing below, both parties acknowledge that they have read, understood, and agree to be bound by the terms and conditions set forth in this Agreement.",
+    "yourSignature": "Your Signature",
+    "signAgreement": "Sign Agreement",
+    "processing": "Processing..."
+  },
+  "estimation": {
+    "title": "Estimate Idea Price",
+    "estimatedCost": "Estimated Development Cost",
+    "notes": "Estimation Notes",
+    "notesPlaceholder": "Add additional context to your estimation...",
+    "notesDescription": "These notes will be shared with the idea owner and admin.",
+    "submit": "Submit Estimation",
+    "submitting": "Submitting..."
+  },
+  "errors": {
+    "connectionError": "Connection Error",
+    "failedToConnect": "Failed to connect to notification service"
+  }
+}
