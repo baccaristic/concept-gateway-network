@@ -79,7 +79,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           toast({
             title: notification.type,
             description: notification.message,
-            icon: <Bell className="h-4 w-4" />
           });
         } catch (error) {
           console.error("Error parsing notification:", error);
@@ -95,7 +94,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           toast({
             title: "New Notification",
             description: notification.message,
-            icon: <Bell className="h-4 w-4" />
           });
         } catch (error) {
           console.error("Error parsing global notification:", error);
