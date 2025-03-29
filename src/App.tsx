@@ -21,6 +21,17 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InvestorDashboard from "@/pages/InvestorDashboard";
 
+// Footer pages
+import HowItWorks from "./pages/HowItWorks";
+import Faq from "./pages/Faq";
+import Blog from "./pages/Blog";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Careers from "./pages/Careers";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Copyright from "./pages/Copyright";
+
 // Import i18n
 import "./i18n";
 
@@ -61,6 +72,17 @@ const App = () => (
                   <ResetPassword />
                 </ProtectedRoute>
               } />
+              
+              {/* Footer pages - public */}
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/faq" element={<Faq />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/copyright" element={<Copyright />} />
               
               {/* Idea holder protected routes */}
               <Route path="/dashboard" element={
