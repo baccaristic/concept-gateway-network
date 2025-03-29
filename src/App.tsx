@@ -19,7 +19,10 @@ import PdfViewer from "./pages/PdfViewer";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import InvestorDashboard from "@/pages/InvestorDashboard.tsx";
+import InvestorDashboard from "@/pages/InvestorDashboard";
+
+// Import i18n
+import "./i18n";
 
 const queryClient = new QueryClient();
 
@@ -32,11 +35,30 @@ const App = () => (
         <AuthProvider>
           <NotificationProvider>
             <Routes>
+              {/* Public routes - redirect if authenticated */}
               <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/login" element={
+                <ProtectedRoute redirectAuthenticated redirectPath="/dashboard">
+                  <Login />
+                </ProtectedRoute>
+              } />
+              <Route path="/register" element={
+                <ProtectedRoute redirectAuthenticated redirectPath="/dashboard">
+                  <Register />
+                </ProtectedRoute>
+              } />
+              <Route path="/forgot-password" element={
+                <ProtectedRoute redirectAuthenticated redirectPath="/dashboard">
+                  <ForgotPassword />
+                </ProtectedRoute>
+              } />
+              <Route path="/reset-password" element={
+                <ProtectedRoute redirectAuthenticated redirectPath="/dashboard">
+                  <ResetPassword />
+                </ProtectedRoute>
+              } />
+              
+              {/* Idea holder protected routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -47,22 +69,37 @@ const App = () => (
                   <SubmitIdea />
                 </ProtectedRoute>
               } />
-              <Route path="/ideas/:ideaId" element={<IdeaDetails />} />
+              
+              {/* Specific role protected routes */}
               <Route path="/investor-dashboard" element={
-                <ProtectedRoute>
-                  <InvestorDashboard/>
+                <ProtectedRoute requiredRoles={['INVESTOR']}>
+                  <InvestorDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/expert-dashboard" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRoles={['EXPERT']}>
                   <ExpertDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/admin-dashboard" element={
-                <AdminDashboard />
+                <ProtectedRoute requiredRoles={['ADMIN']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
               } />
-              <Route path="/pdf-viewer" element={<PdfViewer />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              
+              {/* Semi-protected routes - visible to all authenticated users */}
+              <Route path="/ideas/:ideaId" element={
+                <ProtectedRoute>
+                  <IdeaDetails />
+                </ProtectedRoute>
+              } />
+              <Route path="/pdf-viewer" element={
+                <ProtectedRoute>
+                  <PdfViewer />
+                </ProtectedRoute>
+              } />
+              
+              {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </NotificationProvider>

@@ -6,9 +6,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  requiredRoles?: string[];
+  redirectAuthenticated?: boolean;
+  redirectPath?: string;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ 
+  children, 
+  requiredRoles = [], 
+  redirectAuthenticated = false,
+  redirectPath = '/dashboard' 
+}: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -23,8 +31,24 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
+  // For login, register pages - redirect already authenticated users
+  if (redirectAuthenticated && user) {
+    return <Navigate to={redirectPath} replace />;
+  }
+
+  // For protected pages - redirect unauthenticated users
+  if (!redirectAuthenticated && !user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // For role-protected pages - check if user has required role
+  if (
+    requiredRoles.length > 0 && 
+    user && 
+    !requiredRoles.includes(user.role)
+  ) {
+    // Redirect to appropriate dashboard based on role
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

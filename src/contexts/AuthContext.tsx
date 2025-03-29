@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { User } from "@/types";
 import { authApi, userApi } from "@/services/api";
+import { useTranslation } from 'react-i18next';
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Load user from localStorage on initial render
@@ -40,10 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       await authApi.register(email, password, name, role);
-      toast.success('Registration successful! Please check your email for confirmation.');
+      toast.success(t('auth.registrationSuccess'));
       navigate('/login');
     } catch (error) {
-      toast.error(`Error signing up: ${error.message}`);
+      toast.error(`${t('auth.registrationError')}: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       navigate('/dashboard');
     } catch (error) {
-      toast.error(`Error signing in: ${error.message}`);
+      toast.error(`${t('auth.loginError')}: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       navigate('/');
     } catch (error) {
-      toast.error(`Error signing out: ${error.message}`);
+      toast.error(`${t('auth.logoutError')}: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -83,9 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       // Implement reset password functionality with your API
-      toast.success('Password reset instructions sent to your email');
+      toast.success(t('auth.resetPasswordSuccess'));
     } catch (error) {
-      toast.error(`Error sending reset password email: ${error.message}`);
+      toast.error(`${t('auth.resetPasswordError')}: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -95,10 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       // Implement update password functionality with your API
-      toast.success('Password updated successfully');
+      toast.success(t('auth.passwordUpdateSuccess'));
       navigate('/login');
     } catch (error) {
-      toast.error(`Error updating password: ${error.message}`);
+      toast.error(`${t('auth.passwordUpdateError')}: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
