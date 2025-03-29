@@ -36,7 +36,11 @@ const App = () => (
           <NotificationProvider>
             <Routes>
               {/* Public routes - redirect if authenticated */}
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={
+                <ProtectedRoute redirectAuthenticated redirectPath="/dashboard">
+                  <Index />
+                </ProtectedRoute>
+              } />
               <Route path="/login" element={
                 <ProtectedRoute redirectAuthenticated redirectPath="/dashboard">
                   <Login />

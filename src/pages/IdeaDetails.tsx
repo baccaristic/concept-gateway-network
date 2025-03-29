@@ -94,6 +94,8 @@ const IdeaDetails = () => {
         return "/admin-dashboard"
       case "EXPERT":
         return "/expert-dashboard"
+      case "INVESTOR":
+        return "/investor-dashboard"
       default:
         return "/dashboard"
     }

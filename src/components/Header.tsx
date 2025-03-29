@@ -34,8 +34,7 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   const handleLogout = () => {
-    signOut(); // Fix: Use signOut instead of logout
-    navigate('/login');
+    signOut();
   };
 
   const getInitials = (name: string) => {
