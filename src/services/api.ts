@@ -168,6 +168,57 @@ export const userApi = {
     }
     
     return await response.json();
+  },
+
+  updateProfile: async (profileData: { name: string, email: string, avatarUrl?: string }): Promise<User> => {
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: 'PUT',
+      headers: setAuthHeader(),
+      body: JSON.stringify(profileData)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to update profile');
+    }
+    
+    return await response.json();
+  },
+
+  updatePassword: async (passwordData: { currentPassword: string, newPassword: string }): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/users/password`, {
+      method: 'PUT',
+      headers: setAuthHeader(),
+      body: JSON.stringify(passwordData)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to update password');
+    }
+    
+    return;
+  },
+
+  updateAvatar: async (file: File): Promise<User> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/users/avatar`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to update avatar');
+    }
+    
+    return await response.json();
   }
 };
 

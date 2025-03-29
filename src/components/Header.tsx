@@ -74,9 +74,9 @@ const Header = ({ user }: HeaderProps) => {
           {!user && (
             <nav className="hidden md:flex space-x-6">
               <Link to="/" className="text-gray-600 hover:text-primary">Home</Link>
-              <Link to="/" className="text-gray-600 hover:text-primary">How It Works</Link>
-              <Link to="/" className="text-gray-600 hover:text-primary">About Us</Link>
-              <Link to="/" className="text-gray-600 hover:text-primary">Contact</Link>
+              <Link to="/how-it-works" className="text-gray-600 hover:text-primary">How It Works</Link>
+              <Link to="/about" className="text-gray-600 hover:text-primary">About Us</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-primary">Contact</Link>
             </nav>
           )}
 
@@ -120,7 +120,7 @@ const Header = ({ user }: HeaderProps) => {
                         <User className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
                       </DropdownMenuItem>
-                      {user.role?.toLowerCase() === 'idea-holder' && (
+                      {user.role?.toLowerCase() === 'idea_holder' && (
                         <DropdownMenuItem onClick={() => navigate('/submit-idea')}>
                           <Lightbulb className="mr-2 h-4 w-4" />
                           <span>Submit Idea</span>
@@ -138,7 +138,7 @@ const Header = ({ user }: HeaderProps) => {
                           <span>Evaluations</span>
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/account-settings')}>
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                       </DropdownMenuItem>
@@ -171,9 +171,9 @@ const Header = ({ user }: HeaderProps) => {
               {!user && (
                 <>
                   <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Home</Link>
-                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>How It Works</Link>
-                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>About Us</Link>
-                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Contact</Link>
+                  <Link to="/how-it-works" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>How It Works</Link>
+                  <Link to="/about" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>About Us</Link>
+                  <Link to="/contact" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Contact</Link>
                 </>
               )}
               
@@ -189,7 +189,7 @@ const Header = ({ user }: HeaderProps) => {
                       Dashboard
                     </Link>
                   </div>
-                  {user.role?.toLowerCase() === 'idea-holder' && (
+                  {user.role?.toLowerCase() === 'idea_holder' && (
                     <Link 
                       to="/submit-idea" 
                       className="flex items-center text-gray-600 hover:text-primary"
@@ -199,6 +199,14 @@ const Header = ({ user }: HeaderProps) => {
                       Submit Idea
                     </Link>
                   )}
+                  <Link 
+                    to="/account-settings" 
+                    className="flex items-center text-gray-600 hover:text-primary"
+                    onClick={toggleMenu}
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
                   <button 
                     className="flex items-center text-red-600 hover:text-red-700"
                     onClick={() => {

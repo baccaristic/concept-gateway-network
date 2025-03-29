@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PdfViewer from "./pages/PdfViewer";
+import AccountSettings from "./pages/AccountSettings";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -93,6 +94,13 @@ const App = () => (
               <Route path="/submit-idea" element={
                 <ProtectedRoute>
                   <SubmitIdea />
+                </ProtectedRoute>
+              } />
+              
+              {/* Account settings - available to all authenticated users */}
+              <Route path="/account-settings" element={
+                <ProtectedRoute>
+                  <AccountSettings />
                 </ProtectedRoute>
               } />
               
