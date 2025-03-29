@@ -26,7 +26,7 @@ interface HeaderProps {
 
 const Header = ({ user }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { logout } = useAuth();
+  const { signOut } = useAuth(); // Fix: Use signOut instead of logout
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -34,7 +34,7 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   const handleLogout = () => {
-    logout();
+    signOut(); // Fix: Use signOut instead of logout
     navigate('/login');
   };
 
@@ -71,13 +71,15 @@ const Header = ({ user }: HeaderProps) => {
             <span className="hidden sm:inline">Concept Gateway</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-6">
-            <Link to="/" className="text-gray-600 hover:text-primary">Home</Link>
-            <Link to="/" className="text-gray-600 hover:text-primary">How It Works</Link>
-            <Link to="/" className="text-gray-600 hover:text-primary">About Us</Link>
-            <Link to="/" className="text-gray-600 hover:text-primary">Contact</Link>
-          </nav>
+          {/* Desktop Navigation - Only show when not authenticated */}
+          {!user && (
+            <nav className="hidden md:flex space-x-6">
+              <Link to="/" className="text-gray-600 hover:text-primary">Home</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary">How It Works</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary">About Us</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary">Contact</Link>
+            </nav>
+          )}
 
           {/* Mobile Menu Button */}
           <button 
@@ -119,19 +121,19 @@ const Header = ({ user }: HeaderProps) => {
                         <User className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
                       </DropdownMenuItem>
-                      {user.role === 'idea-holder' && (
+                      {user.role?.toLowerCase() === 'idea-holder' && (
                         <DropdownMenuItem onClick={() => navigate('/submit-idea')}>
                           <Lightbulb className="mr-2 h-4 w-4" />
                           <span>Submit Idea</span>
                         </DropdownMenuItem>
                       )}
-                      {user.role === 'investor' && (
+                      {user.role?.toLowerCase() === 'investor' && (
                         <DropdownMenuItem onClick={() => navigate('/investor-dashboard')}>
                           <DollarSign className="mr-2 h-4 w-4" />
                           <span>Investments</span>
                         </DropdownMenuItem>
                       )}
-                      {user.role === 'expert' && (
+                      {user.role?.toLowerCase() === 'expert' && (
                         <DropdownMenuItem onClick={() => navigate('/expert-dashboard')}>
                           <FileCheck className="mr-2 h-4 w-4" />
                           <span>Evaluations</span>
@@ -166,14 +168,19 @@ const Header = ({ user }: HeaderProps) => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
             <nav className="flex flex-col space-y-4">
-              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Home</Link>
-              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>How It Works</Link>
-              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>About Us</Link>
-              <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Contact</Link>
+              {/* Only show public navigation links when not authenticated */}
+              {!user && (
+                <>
+                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Home</Link>
+                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>How It Works</Link>
+                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>About Us</Link>
+                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Contact</Link>
+                </>
+              )}
               
               {user ? (
                 <>
-                  <div className="pt-2 border-t border-gray-200">
+                  <div className={`${!user ? 'pt-2 border-t border-gray-200' : ''}`}>
                     <Link 
                       to={getRouteForUserRole(user.role || '')} 
                       className="flex items-center text-gray-600 hover:text-primary"
@@ -183,7 +190,7 @@ const Header = ({ user }: HeaderProps) => {
                       Dashboard
                     </Link>
                   </div>
-                  {user.role === 'idea-holder' && (
+                  {user.role?.toLowerCase() === 'idea-holder' && (
                     <Link 
                       to="/submit-idea" 
                       className="flex items-center text-gray-600 hover:text-primary"
