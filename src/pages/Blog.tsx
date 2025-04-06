@@ -93,13 +93,13 @@ const Blog = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-16 pb-12 bg-gradient-to-b from-white to-gray-50">
+      <section className="pt-16 pb-12 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6">
               IdeaVest Blog
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-muted-foreground mb-8">
               Insights, tips, and success stories from our community of innovators and investors.
             </p>
           </div>
@@ -108,17 +108,17 @@ const Blog = () => {
 
       {/* Featured Post */}
       {featuredPost && (
-        <section className="py-12 bg-white">
+        <section className="py-12 bg-background">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
               <motion.div 
-                className="bg-white rounded-lg overflow-hidden shadow-md"
+                className="bg-card rounded-lg overflow-hidden shadow-md"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="h-64 md:h-full bg-gray-200 relative">
+                  <div className="h-64 md:h-full bg-muted relative">
                     <img 
                       src={featuredPost.image} 
                       alt={featuredPost.title} 
@@ -127,10 +127,10 @@ const Blog = () => {
                   </div>
                   <div className="p-6 flex flex-col justify-center">
                     <Badge className="w-fit mb-4">{featuredPost.category}</Badge>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">{featuredPost.title}</h2>
-                    <p className="text-gray-600 mb-6">{featuredPost.excerpt}</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">{featuredPost.title}</h2>
+                    <p className="text-muted-foreground mb-6">{featuredPost.excerpt}</p>
                     
-                    <div className="flex items-center text-sm text-gray-500 mb-6">
+                    <div className="flex items-center text-sm text-muted-foreground mb-6">
                       <div className="flex items-center mr-6">
                         <User className="h-4 w-4 mr-2" />
                         <span>{featuredPost.author}</span>
@@ -153,14 +153,14 @@ const Blog = () => {
       )}
 
       {/* Search and Filter Section */}
-      <section className="py-8 bg-gray-50">
+      <section className="py-8 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               {/* Search */}
               <div className="relative w-full md:w-64">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+                  <Search className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <Input
                   type="search"
@@ -190,7 +190,7 @@ const Blog = () => {
       </section>
 
       {/* Blog Posts */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             {filteredPosts.length > 0 ? (
@@ -198,12 +198,12 @@ const Blog = () => {
                 {filteredPosts.filter(post => !post.featured).map((post, index) => (
                   <motion.div
                     key={post.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 h-full flex flex-col"
+                    className="bg-card rounded-lg overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow duration-300 h-full flex flex-col"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <div className="h-48 bg-gray-200 relative">
+                    <div className="h-48 bg-muted relative">
                       <img 
                         src={post.image} 
                         alt={post.title} 
@@ -212,10 +212,10 @@ const Blog = () => {
                     </div>
                     <div className="p-6 flex-grow flex flex-col">
                       <Badge className="w-fit mb-2">{post.category}</Badge>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{post.title}</h3>
-                      <p className="text-gray-600 mb-4 flex-grow">{post.excerpt}</p>
+                      <h3 className="text-xl font-semibold text-foreground mb-2">{post.title}</h3>
+                      <p className="text-muted-foreground mb-4 flex-grow">{post.excerpt}</p>
                       
-                      <div className="flex items-center text-sm text-gray-500 mb-4 mt-auto">
+                      <div className="flex items-center text-sm text-muted-foreground mb-4 mt-auto">
                         <div className="flex items-center mr-4">
                           <User className="h-3 w-3 mr-1" />
                           <span>{post.author}</span>
@@ -235,7 +235,7 @@ const Blog = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500">No articles found matching your criteria.</p>
+                <p className="text-muted-foreground">No articles found matching your criteria.</p>
                 <Button 
                   variant="outline" 
                   onClick={() => {
@@ -253,11 +253,11 @@ const Blog = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Stay Updated</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Stay Updated</h2>
+            <p className="text-muted-foreground mb-6">
               Subscribe to our newsletter for the latest articles, insights, and platform updates.
             </p>
             <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">

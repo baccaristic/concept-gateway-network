@@ -52,13 +52,13 @@ const HowItWorks = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-16 pb-12 bg-gradient-to-b from-white to-gray-50">
+      <section className="pt-16 pb-12 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6">
               How IdeaVest Works
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-muted-foreground mb-8">
               Our streamlined process ensures that great ideas get recognized, valued, and funded through a secure and transparent platform.
             </p>
             <Button asChild size="lg">
@@ -69,11 +69,11 @@ const HowItWorks = () => {
       </section>
 
       {/* Process Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Simple Process</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Our Simple Process</h2>
+            <p className="text-lg text-muted-foreground">
               We've designed a streamlined journey from idea submission to investor connection
             </p>
           </div>
@@ -81,7 +81,7 @@ const HowItWorks = () => {
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               {/* Vertical timeline line */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gray-200 hidden sm:block"></div>
+              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-border hidden sm:block"></div>
               
               {/* Timeline steps */}
               <div className="space-y-16">
@@ -96,16 +96,16 @@ const HowItWorks = () => {
                   >
                     {/* Content */}
                     <div className="flex-1 sm:w-1/2">
-                      <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 h-full">
+                      <div className="p-6 bg-card rounded-lg shadow-sm border border-border hover:shadow-md transition-shadow duration-300 h-full">
                         <div className="text-3xl mb-4">{step.icon}</div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
-                        <p className="text-gray-600">{step.description}</p>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">{step.title}</h3>
+                        <p className="text-muted-foreground">{step.description}</p>
                       </div>
                     </div>
                     
                     {/* Timeline marker */}
                     <div className="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
-                      <div className="w-10 h-10 rounded-full bg-primary border-4 border-white flex items-center justify-center text-white">
+                      <div className="w-10 h-10 rounded-full bg-primary border-4 border-background flex items-center justify-center text-white">
                         {index + 1}
                       </div>
                     </div>
@@ -121,11 +121,11 @@ const HowItWorks = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Benefits of Using IdeaVest</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Benefits of Using IdeaVest</h2>
+            <p className="text-lg text-muted-foreground">
               Our platform offers unique advantages for both idea creators and investors
             </p>
           </div>
@@ -143,7 +143,7 @@ const HowItWorks = () => {
                 <div className="mr-4 mt-1">
                   <Check className="h-5 w-5 text-primary" />
                 </div>
-                <p className="text-gray-800 font-medium">{benefit}</p>
+                <p className="text-foreground font-medium">{benefit}</p>
               </motion.div>
             ))}
           </div>
