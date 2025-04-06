@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -19,6 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { User as UserType } from '@/types';
 import NotificationBell from './NotificationBell';
+import HeaderThemeToggle from './HeaderThemeToggle';
 
 interface HeaderProps {
   user?: UserType;
@@ -26,7 +26,7 @@ interface HeaderProps {
 
 const Header = ({ user }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { signOut } = useAuth(); // Fix: Use signOut instead of logout
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -61,7 +61,7 @@ const Header = ({ user }: HeaderProps) => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-gray-200 dark:bg-sidebar dark:border-sidebar-border">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -73,16 +73,16 @@ const Header = ({ user }: HeaderProps) => {
           {/* Desktop Navigation - Only show when not authenticated */}
           {!user && (
             <nav className="hidden md:flex space-x-6">
-              <Link to="/" className="text-gray-600 hover:text-primary">Home</Link>
-              <Link to="/how-it-works" className="text-gray-600 hover:text-primary">How It Works</Link>
-              <Link to="/about" className="text-gray-600 hover:text-primary">About Us</Link>
-              <Link to="/contact" className="text-gray-600 hover:text-primary">Contact</Link>
+              <Link to="/" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary">Home</Link>
+              <Link to="/how-it-works" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary">How It Works</Link>
+              <Link to="/about" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary">About Us</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary">Contact</Link>
             </nav>
           )}
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden text-gray-600" 
+            className="md:hidden text-gray-600 dark:text-gray-300" 
             onClick={toggleMenu}
             aria-label="Toggle menu"
           >
@@ -95,6 +95,9 @@ const Header = ({ user }: HeaderProps) => {
               <div className="flex items-center gap-3">
                 {/* Notification Bell */}
                 <NotificationBell />
+                
+                {/* Theme Toggle */}
+                <HeaderThemeToggle />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -153,6 +156,8 @@ const Header = ({ user }: HeaderProps) => {
               </div>
             ) : (
               <div className="flex items-center space-x-2">
+                {/* Add Theme Toggle for non-authenticated users too */}
+                <HeaderThemeToggle />
                 <Button variant="outline" onClick={() => navigate('/login')}>Log In</Button>
                 <Button onClick={() => navigate('/register')}>
                   <UserPlus className="mr-2 h-4 w-4" />
@@ -170,10 +175,10 @@ const Header = ({ user }: HeaderProps) => {
               {/* Only show public navigation links when not authenticated */}
               {!user && (
                 <>
-                  <Link to="/" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Home</Link>
-                  <Link to="/how-it-works" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>How It Works</Link>
-                  <Link to="/about" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>About Us</Link>
-                  <Link to="/contact" className="text-gray-600 hover:text-primary" onClick={toggleMenu}>Contact</Link>
+                  <Link to="/" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" onClick={toggleMenu}>Home</Link>
+                  <Link to="/how-it-works" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" onClick={toggleMenu}>How It Works</Link>
+                  <Link to="/about" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" onClick={toggleMenu}>About Us</Link>
+                  <Link to="/contact" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" onClick={toggleMenu}>Contact</Link>
                 </>
               )}
               
