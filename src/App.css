@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -12,10 +13,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em rgba(255, 185, 21, 0.6));
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em rgba(255, 185, 21, 0.6));
 }
 
 @keyframes logo-spin {
@@ -39,4 +40,36 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Add BrainBox specific styles */
+.brainbox-container {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.brainbox-primary-btn {
+  background-color: #FFB915;
+  color: #004C66;
+  transition: all 0.3s ease;
+}
+
+.brainbox-primary-btn:hover {
+  background-color: #FED358;
+}
+
+.brainbox-secondary-btn {
+  background-color: #004C66;
+  color: #FFB915;
+  transition: all 0.3s ease;
+}
+
+.brainbox-secondary-btn:hover {
+  background-color: #00745A;
+}
+
+.dark .brainbox-container {
+  background-color: #011E2F;
+  color: #FED358;
 }

@@ -25,6 +25,19 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				brainbox: {
+					// Colors from the image
+					yellow: {
+						DEFAULT: '#FFB915', // Primary yellow from the logo
+						light: '#FED358', // Lighter yellow from palette
+						lighter: '#FEE58E', // Even lighter yellow from palette
+					},
+					blue: {
+						DEFAULT: '#004C66', // Primary blue from logo background
+						light: '#00745A', // Medium blue from palette 
+						dark: '#011E2F', // Darkest blue from palette
+					},
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
