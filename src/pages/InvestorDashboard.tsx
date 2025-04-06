@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,11 @@ const categories = [
   "Education",
 ];
 
+// Extended Idea type with canView property
+interface IdeaWithView extends Idea {
+  canView: boolean;
+}
+
 const InvestorDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -36,10 +42,10 @@ const InvestorDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("estimatedValue");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [ideas, setIdeas] = useState<IdeaWithView[]>([]);
   const [agreements, setAgreements] = useState<Agreement[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
+  const [selectedIdea, setSelectedIdea] = useState<IdeaWithView | null>(null);
   const [agreementDialogOpen, setAgreementDialogOpen] = useState(false);
   const { user } = useAuth();
 
@@ -52,7 +58,12 @@ const InvestorDashboard = () => {
   const fetchIdeas = async () => {
     try {
       const data = await ideasApi.getInvestorEstimatedIdeas();
-      setIdeas(data);
+      // Add canView property to each idea
+      const ideasWithView = data.map(idea => ({
+        ...idea,
+        canView: false // Set default, will be updated based on agreements
+      }));
+      setIdeas(ideasWithView);
     } catch (error) {
       console.error("Error fetching ideas:", error);
       toast({
@@ -67,6 +78,15 @@ const InvestorDashboard = () => {
     try {
       const data = await investorApi.getMyAgreements();
       setAgreements(data);
+      
+      // Update canView property for ideas with agreements
+      setIdeas(prevIdeas => prevIdeas.map(idea => ({
+        ...idea,
+        canView: data.some(agreement => 
+          agreement.ideaId === idea.id && 
+          (agreement.status === 'SIGNED' || agreement.status === 'APPROVED')
+        )
+      })));
     } catch (error) {
       console.error("Error fetching agreements:", error);
       toast({
@@ -105,7 +125,7 @@ const InvestorDashboard = () => {
   };
 
   // Handle idea selection for viewing details
-  const handleIdeaSelect = <T extends Idea & { canView: boolean }>(idea: T) => {
+  const handleIdeaSelect = (idea: IdeaWithView) => {
     if (idea.canView) {
       navigate(`/ideas/${idea.id}`);
     }
@@ -118,7 +138,7 @@ const InvestorDashboard = () => {
     navigate(`/ideas/${ideaId}`);
   }
 
-  const handleCreateAgreement = (idea: Idea & { canView: boolean }) => {
+  const handleCreateAgreement = (idea: IdeaWithView) => {
     setSelectedIdea(idea);
     setAgreementDialogOpen(true);
   };
@@ -164,13 +184,13 @@ const InvestorDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Pending</Badge>;
       case 'SIGNED':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800">Signed</Badge>;
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Signed</Badge>;
       case 'APPROVED':
-        return <Badge variant="outline" className="bg-green-100 text-green-800">Approved</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Approved</Badge>;
       case 'REJECTED':
-        return <Badge variant="outline" className="bg-red-100 text-red-800">Rejected</Badge>;
+        return <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Rejected</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -371,7 +391,7 @@ const InvestorDashboard = () => {
         <AgreementDialog
           open={agreementDialogOpen}
           onOpenChange={setAgreementDialogOpen}
-          idea={selectedIdea ? { ...selectedIdea } : null}
+          idea={selectedIdea}
           onSignAgreement={handleSignAgreement}
           isLoading={isLoading}
         />

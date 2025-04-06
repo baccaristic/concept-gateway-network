@@ -100,20 +100,20 @@ const Faq = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-16 pb-12 bg-gradient-to-b from-white to-gray-50">
+      <section className="pt-16 pb-12 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6">
               Frequently Asked Questions
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-muted-foreground mb-8">
               Find answers to common questions about IdeaVest, our processes, and how you can make the most of our platform.
             </p>
             
             {/* Search bar */}
             <div className="relative max-w-xl mx-auto">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+                <Search className="h-5 w-5 text-muted-foreground" />
               </div>
               <Input
                 type="search"
@@ -128,7 +128,7 @@ const Faq = () => {
       </section>
 
       {/* FAQ Content */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             {filteredFAQs.length > 0 ? (
@@ -140,7 +140,7 @@ const Faq = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
                 >
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-foreground">{category.title}</h2>
                   
                   <Accordion type="single" collapsible className="space-y-4">
                     {category.faqs.map((faq, faqIndex) => (
@@ -148,7 +148,7 @@ const Faq = () => {
                         <AccordionTrigger className="text-left font-medium py-4">
                           {faq.question}
                         </AccordionTrigger>
-                        <AccordionContent className="text-gray-600 pb-4">
+                        <AccordionContent className="text-muted-foreground pb-4">
                           {faq.answer}
                         </AccordionContent>
                       </AccordionItem>
@@ -158,7 +158,7 @@ const Faq = () => {
               ))
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500">No results found for "{searchQuery}"</p>
+                <p className="text-muted-foreground">No results found for "{searchQuery}"</p>
                 <Button 
                   variant="outline" 
                   onClick={() => setSearchQuery('')}
@@ -170,9 +170,9 @@ const Faq = () => {
             )}
             
             {/* Still have questions */}
-            <div className="mt-16 p-8 bg-gray-50 rounded-xl text-center">
+            <div className="mt-16 p-8 bg-muted/30 rounded-xl text-center">
               <h3 className="text-xl font-semibold mb-4">Still have questions?</h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 If you couldn't find the answer to your question, please don't hesitate to contact our support team.
               </p>
               <Button asChild>

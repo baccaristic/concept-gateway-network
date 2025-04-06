@@ -2,7 +2,7 @@
 import { ReactNode } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import {User} from "@/types";
+import { User } from "@/types";
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,7 +12,7 @@ interface LayoutProps {
 
 const Layout = ({ children, user, hideFooter = false }: LayoutProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background dark:bg-background text-foreground dark:text-foreground">
       <Header user={user} />
       <main className="flex-grow">
         <div className="page-transition">
