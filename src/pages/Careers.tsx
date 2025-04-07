@@ -180,13 +180,13 @@ const Careers = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-16 pb-12 bg-gradient-to-b from-white to-gray-50">
+      <section className="pt-16 pb-12 bg-gradient-to-b from-background to-muted">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6">
               Join Our Team
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-muted-foreground mb-8">
               Help us build the future of innovation and investment. Explore career opportunities at IdeaVest.
             </p>
             <Button asChild size="lg">
@@ -197,7 +197,7 @@ const Careers = () => {
       </section>
 
       {/* About Our Team */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -207,14 +207,14 @@ const Careers = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Why Work With Us</h2>
-                <p className="text-gray-600 mb-4">
+                <h2 className="text-3xl font-bold text-foreground mb-6">Why Work With Us</h2>
+                <p className="text-muted-foreground mb-4">
                   At IdeaVest, we're building the platform that connects innovative ideas with the resources needed to bring them to life. Our team is passionate about empowering creators and fostering a global ecosystem of innovation.
                 </p>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   We value collaboration, creativity, and impact. Every team member plays a crucial role in our mission to democratize access to funding and support for groundbreaking ideas.
                 </p>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   If you're excited about working in a fast-paced environment where your contributions directly impact thousands of innovators and investors worldwide, we want to hear from you.
                 </p>
               </motion.div>
@@ -242,11 +242,11 @@ const Careers = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-muted">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Benefits & Perks</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-foreground mb-6">Benefits & Perks</h2>
+            <p className="text-lg text-muted-foreground">
               We offer a comprehensive benefits package to support your well-being and professional growth.
             </p>
           </div>
@@ -255,14 +255,14 @@ const Careers = () => {
             {benefits.map((benefit, index) => (
               <motion.div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300"
+                className="bg-card p-6 rounded-lg shadow-sm border border-border hover:shadow-md transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
+                <h3 className="text-xl font-semibold text-card-foreground mb-2">{benefit.title}</h3>
+                <p className="text-muted-foreground">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
@@ -270,16 +270,16 @@ const Careers = () => {
       </section>
 
       {/* Job Listings */}
-      <section id="job-listings" className="py-16 bg-white">
+      <section id="job-listings" className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Open Positions</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-8">Open Positions</h2>
             
             {/* Search and filters */}
             <div className="mb-8 space-y-6">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+                  <Search className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <Input
                   type="search"
@@ -292,10 +292,10 @@ const Careers = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="w-full sm:w-1/2">
-                  <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                  <label htmlFor="department" className="block text-sm font-medium text-foreground mb-1">Department</label>
                   <select
                     id="department"
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                    className="w-full rounded-md border border-input bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
                     value={selectedDepartment}
                     onChange={(e) => setSelectedDepartment(e.target.value)}
                   >
@@ -305,10 +305,10 @@ const Careers = () => {
                   </select>
                 </div>
                 <div className="w-full sm:w-1/2">
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Location</label>
                   <select
                     id="location"
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                    className="w-full rounded-md border border-input bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
                     value={selectedLocation}
                     onChange={(e) => setSelectedLocation(e.target.value)}
                   >
@@ -326,7 +326,7 @@ const Careers = () => {
                 filteredJobs.map((job, index) => (
                   <motion.div
                     key={job.id}
-                    className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
+                    className="bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -338,9 +338,9 @@ const Careers = () => {
                           <div>
                             <div className="flex items-center mb-2">
                               <BriefcaseIcon className="h-5 w-5 text-primary mr-2" />
-                              <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
+                              <h3 className="text-xl font-semibold text-card-foreground">{job.title}</h3>
                             </div>
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                               <Badge variant="outline">{job.type}</Badge>
                               <div className="flex items-center">
                                 <MapPin className="h-4 w-4 mr-1" />
@@ -357,13 +357,13 @@ const Careers = () => {
                         </div>
                         
                         <AccordionContent className="px-6 pb-6 pt-0">
-                          <div className="border-t border-gray-100 pt-4">
-                            <p className="text-gray-600 mb-4">{job.description}</p>
+                          <div className="border-t border-border pt-4">
+                            <p className="text-card-foreground mb-4">{job.description}</p>
                             
-                            <h4 className="font-medium text-gray-900 mb-2">Requirements:</h4>
+                            <h4 className="font-medium text-card-foreground mb-2">Requirements:</h4>
                             <ul className="list-disc pl-5 mb-6 space-y-1">
                               {job.requirements.map((req, i) => (
-                                <li key={i} className="text-gray-600">{req}</li>
+                                <li key={i} className="text-muted-foreground">{req}</li>
                               ))}
                             </ul>
                             
@@ -377,8 +377,8 @@ const Careers = () => {
                   </motion.div>
                 ))
               ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <p className="text-gray-500 mb-4">No job openings match your criteria.</p>
+                <div className="text-center py-12 bg-muted rounded-lg">
+                  <p className="text-muted-foreground mb-4">No job openings match your criteria.</p>
                   <Button 
                     variant="outline" 
                     onClick={() => {
@@ -397,18 +397,18 @@ const Careers = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-primary text-white">
+      <section className="py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold mb-6">Don't See a Perfect Fit?</h2>
-            <p className="text-lg text-white/80 mb-8">
+            <p className="text-lg opacity-90 mb-8">
               We're always looking for talented individuals to join our team. Send us your resume, and we'll keep you in mind for future opportunities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild variant="secondary" size="lg">
                 <a href="mailto:careers@ideavest.com">Submit Your Resume</a>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
+              <Button asChild variant="outline" size="lg" className="border-primary-foreground hover:bg-primary-foreground/10">
                 <Link to="/contact">Contact Recruiting</Link>
               </Button>
             </div>

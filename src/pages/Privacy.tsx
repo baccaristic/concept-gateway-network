@@ -160,13 +160,13 @@ const Privacy = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-16 pb-12 bg-gradient-to-b from-white to-gray-50">
+      <section className="pt-16 pb-12 bg-gradient-to-b from-background to-muted">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6">
               Privacy Policy
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Last Updated: {lastUpdated}
             </p>
           </div>
@@ -174,7 +174,7 @@ const Privacy = () => {
       </section>
 
       {/* Privacy Policy Content */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <motion.div
@@ -182,7 +182,7 @@ const Privacy = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="prose prose-lg max-w-none mb-8">
+              <div className="prose prose-lg max-w-none mb-8 text-foreground">
                 <p>
                   At IdeaVest, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and protect your information when you use our website, platform, and services (collectively, the "Services").
                 </p>
@@ -196,20 +196,20 @@ const Privacy = () => {
                   <AccordionItem 
                     key={index} 
                     value={`section-${index}`}
-                    className="border rounded-lg px-2"
+                    className="border border-border rounded-lg px-2 bg-card"
                   >
-                    <AccordionTrigger className="text-left text-lg font-medium py-4">
+                    <AccordionTrigger className="text-left text-lg font-medium py-4 text-card-foreground">
                       {section.title}
                     </AccordionTrigger>
-                    <AccordionContent className="prose prose-lg max-w-none pb-4">
+                    <AccordionContent className="prose prose-lg max-w-none pb-4 text-card-foreground">
                       {section.content}
                     </AccordionContent>
                   </AccordionItem>
                 ))}
               </Accordion>
               
-              <div className="prose prose-lg max-w-none mt-8">
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Contact Us</h2>
+              <div className="prose prose-lg max-w-none mt-8 text-foreground">
+                <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Contact Us</h2>
                 <p>
                   If you have any questions about this Privacy Policy, please contact us at:
                 </p>
@@ -221,8 +221,8 @@ const Privacy = () => {
                 </p>
               </div>
               
-              <div className="mt-12 pt-8 border-t border-gray-200">
-                <p className="text-gray-600 mb-6">
+              <div className="mt-12 pt-8 border-t border-border">
+                <p className="text-muted-foreground mb-6">
                   By using IdeaVest, you acknowledge that you have read, understood, and agree to our Privacy Policy.
                 </p>
                 

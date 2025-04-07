@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -135,6 +136,39 @@
 
   .bb-card {
     @apply bg-card text-card-foreground border rounded-lg shadow-sm hover:shadow-md transition-shadow;
+  }
+  
+  /* Color-responsive prose */
+  .prose {
+    @apply text-foreground;
+  }
+  
+  .dark .prose {
+    @apply text-foreground;
+  }
+  
+  .prose strong, .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    @apply text-foreground;
+  }
+  
+  .dark .prose strong, .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 {
+    @apply text-foreground;
+  }
+  
+  .prose a {
+    @apply text-primary font-semibold;
+  }
+  
+  .bg-card .prose, .bg-card .prose p, .bg-card .prose li, .bg-card .prose h1, 
+  .bg-card .prose h2, .bg-card .prose h3, .bg-card .prose h4, 
+  .bg-card .prose h5, .bg-card .prose h6 {
+    @apply text-card-foreground;
+  }
+  
+  .bg-primary .prose, .bg-primary .prose p, .bg-primary .prose li, .bg-primary .prose h1, 
+  .bg-primary .prose h2, .bg-primary .prose h3, .bg-primary .prose h4, 
+  .bg-primary .prose h5, .bg-primary .prose h6 {
+    @apply text-primary-foreground;
   }
 }
 
