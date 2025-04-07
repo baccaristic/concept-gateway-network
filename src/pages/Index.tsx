@@ -1,13 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowRight, LightbulbIcon, ShieldCheck, User, DollarSign } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const [animationPlayed, setAnimationPlayed] = useState(false);
+  const [content, setContent] = useState({});
+  const [features, setFeatures] = useState([]);
+  const [steps, setSteps] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Start animation after a short delay
   setTimeout(() => {
@@ -15,6 +20,59 @@ const Index = () => {
       setAnimationPlayed(true);
     }
   }, 100);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      setLoading(true);
+      try {
+        // Fetch page content
+        const { data: contentData, error: contentError } = await supabase
+          .from('page_content')
+          .select('*')
+          .eq('page_name', 'home');
+          
+        if (contentError) throw contentError;
+        
+        // Fetch features
+        const { data: featuresData, error: featuresError } = await supabase
+          .from('homepage_features')
+          .select('*')
+          .order('display_order', { ascending: true });
+          
+        if (featuresError) throw featuresError;
+        
+        // Fetch steps
+        const { data: stepsData, error: stepsError } = await supabase
+          .from('homepage_steps')
+          .select('*')
+          .order('display_order', { ascending: true });
+          
+        if (stepsError) throw stepsError;
+        
+        // Process content into a more usable structure
+        const contentMap = {};
+        contentData.forEach(item => {
+          if (!contentMap[item.section_name]) {
+            contentMap[item.section_name] = {};
+          }
+          contentMap[item.section_name][item.content_key] = {
+            value: item.content_value,
+            type: item.content_type
+          };
+        });
+        
+        setContent(contentMap);
+        setFeatures(featuresData);
+        setSteps(stepsData);
+      } catch (error) {
+        console.error('Error fetching content:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchContent();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -40,32 +98,30 @@ const Index = () => {
     },
   };
 
-  const features = [
-    {
-      title: 'Idea Holders',
-      description: 'Submit your innovative ideas with detailed descriptions and attachments.',
-      icon: <LightbulbIcon className="h-10 w-10 text-blue-500" />,
-      color: 'bg-blue-50 dark:bg-blue-900/30',
-    },
-    {
-      title: 'Experts',
-      description: 'Estimate value and pricing for ideas with professional insights.',
-      icon: <ShieldCheck className="h-10 w-10 text-emerald-500" />,
-      color: 'bg-emerald-50 dark:bg-emerald-900/30',
-    },
-    {
-      title: 'Investors',
-      description: 'Discover and invest in promising ideas with complete copyright protection.',
-      icon: <DollarSign className="h-10 w-10 text-amber-500" />,
-      color: 'bg-amber-50 dark:bg-amber-900/30',
-    },
-    {
-      title: 'Administrators',
-      description: 'Manage users and oversee the idea approval process.',
-      icon: <User className="h-10 w-10 text-indigo-500" />,
-      color: 'bg-indigo-50 dark:bg-indigo-900/30',
-    },
-  ];
+  // Get content with fallback
+  const getContent = (section, key, defaultValue = '') => {
+    if (content[section] && content[section][key]) {
+      return content[section][key].value;
+    }
+    return defaultValue;
+  };
+
+  // Render HTML content safely
+  const renderHtml = (html) => {
+    return { __html: html };
+  };
+
+  // Get icon component by name
+  const getIconByName = (name) => {
+    const icons = {
+      'LightbulbIcon': <LightbulbIcon className="h-10 w-10 text-blue-500" />,
+      'ShieldCheck': <ShieldCheck className="h-10 w-10 text-emerald-500" />,
+      'DollarSign': <DollarSign className="h-10 w-10 text-amber-500" />,
+      'User': <User className="h-10 w-10 text-indigo-500" />
+    };
+    
+    return icons[name] || <LightbulbIcon className="h-10 w-10 text-blue-500" />;
+  };
 
   return (
     <Layout>
@@ -96,9 +152,8 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              Turn Your <span className="text-primary">Innovative Ideas</span> into Reality
-            </motion.h1>
+              dangerouslySetInnerHTML={renderHtml(getContent('hero', 'headline', 'Turn Your <span class="text-primary">Innovative Ideas</span> into Reality'))}
+            />
             
             <motion.p
               className="mt-6 text-lg leading-8 text-muted-foreground mb-8"
@@ -106,7 +161,7 @@ const Index = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.7 }}
             >
-              IdeaVest is a premium platform where idea creators connect with investors through a secure, transparent process, ensuring proper recognition and fair valuation.
+              {getContent('hero', 'subheadline', 'IdeaVest is a premium platform where idea creators connect with investors through a secure, transparent process, ensuring proper recognition and fair valuation.')}
             </motion.p>
             
             <motion.div
@@ -117,11 +172,11 @@ const Index = () => {
             >
               <Button asChild size="lg" className="text-sm h-11 px-6">
                 <Link to="/register">
-                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  {getContent('hero', 'cta_primary_text', 'Get Started')} <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="ghost" size="lg" className="text-sm h-11">
-                <Link to="/how-it-works">Learn More</Link>
+                <Link to="/how-it-works">{getContent('hero', 'cta_secondary_text', 'Learn More')}</Link>
               </Button>
             </motion.div>
           </motion.div>
@@ -135,7 +190,7 @@ const Index = () => {
             <div className="relative overflow-hidden rounded-xl bg-gray-900 shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-gray-900/10"></div>
               <img
-                src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                src={getContent('hero', 'image_url', 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')}
                 alt="IdeaVest Platform"
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -159,10 +214,10 @@ const Index = () => {
               Platform Features
             </span>
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              A Complete Ecosystem for Ideas
+              {getContent('features', 'headline', 'A Complete Ecosystem for Ideas')}
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Our platform caters to all stakeholders in the innovation process, from idea conception to investment.
+              {getContent('features', 'subheadline', 'Our platform caters to all stakeholders in the innovation process, from idea conception to investment.')}
             </p>
           </div>
 
@@ -174,13 +229,13 @@ const Index = () => {
           >
             {features.map((feature, index) => (
               <motion.div
-                key={index}
+                key={feature.id}
                 className="flex flex-col h-full bg-card rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
                 variants={itemVariants}
               >
                 <div className="p-6">
                   <div className={`w-16 h-16 ${feature.color} rounded-lg flex items-center justify-center mb-6`}>
-                    {feature.icon}
+                    {getIconByName(feature.icon_name)}
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.description}</p>
@@ -199,10 +254,10 @@ const Index = () => {
               Simple Process
             </span>
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              How IdeaVest Works
+              {getContent('howItWorks', 'headline', 'How IdeaVest Works')}
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Our streamlined process ensures that great ideas get recognized, valued, and funded.
+              {getContent('howItWorks', 'subheadline', 'Our streamlined process ensures that great ideas get recognized, valued, and funded.')}
             </p>
           </div>
 
@@ -210,34 +265,8 @@ const Index = () => {
             <div className="absolute left-1/2 -ml-0.5 w-0.5 h-full bg-border"></div>
             
             <div className="space-y-12 relative">
-              {[
-                {
-                  title: "Submit Your Idea",
-                  description: "Idea holders register and submit their innovations with detailed descriptions and any relevant attachments.",
-                  step: "01",
-                },
-                {
-                  title: "Expert Evaluation",
-                  description: "Our expert panel reviews the submission and provides a detailed valuation and price estimation.",
-                  step: "02",
-                },
-                {
-                  title: "Admin Approval",
-                  description: "Administrators verify the idea, ensure compliance with platform guidelines, and approve it for listing.",
-                  step: "03",
-                },
-                {
-                  title: "Investor Discovery",
-                  description: "Approved ideas become visible to investors who can search and filter based on various criteria.",
-                  step: "04",
-                },
-                {
-                  title: "Secure Agreements",
-                  description: "Interested investors sign a digital copyright agreement to access detailed idea information.",
-                  step: "05",
-                },
-              ].map((item, index) => (
-                <div key={index} className="relative">
+              {steps.map((step, index) => (
+                <div key={step.id} className="relative">
                   <div className={`flex items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
                     <motion.div 
                       className={`w-1/2 ${index % 2 === 0 ? 'pr-12' : 'pl-12'}`}
@@ -249,10 +278,10 @@ const Index = () => {
                       <div className="bg-card p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div className="flex items-center mb-4">
                           <span className="text-xs font-semibold tracking-wide text-primary uppercase mr-2">Step</span>
-                          <span className="text-xl font-bold text-primary">{item.step}</span>
+                          <span className="text-xl font-bold text-primary">{step.step_number}</span>
                         </div>
-                        <h3 className="text-xl font-semibold text-foreground mb-2">{item.title}</h3>
-                        <p className="text-muted-foreground">{item.description}</p>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">{step.title}</h3>
+                        <p className="text-muted-foreground">{step.description}</p>
                       </div>
                     </motion.div>
                   </div>
@@ -278,17 +307,17 @@ const Index = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-primary-foreground mb-6">
-              Ready to Bring Your Ideas to Life?
+              {getContent('cta', 'headline', 'Ready to Bring Your Ideas to Life?')}
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Join our platform today and become part of an ecosystem that values innovation and creates opportunities for both idea creators and investors.
+              {getContent('cta', 'subheadline', 'Join our platform today and become part of an ecosystem that values innovation and creates opportunities for both idea creators and investors.')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" variant="secondary" className="text-primary">
-                <Link to="/register">Sign Up Now</Link>
+                <Link to="/register">{getContent('cta', 'button_primary_text', 'Sign Up Now')}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
-                <Link to="/how-it-works">Learn More</Link>
+                <Link to="/how-it-works">{getContent('cta', 'button_secondary_text', 'Learn More')}</Link>
               </Button>
             </div>
           </div>
