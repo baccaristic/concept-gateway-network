@@ -7,12 +7,113 @@ import { motion } from 'framer-motion';
 import { ArrowRight, LightbulbIcon, ShieldCheck, User, DollarSign } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Default content as fallback
+const defaultContent = {
+  hero: {
+    headline: { value: 'Turn Your <span class="text-primary">Innovative Ideas</span> into Reality', type: 'html' },
+    subheadline: { value: 'IdeaVest is a premium platform where idea creators connect with investors through a secure, transparent process, ensuring proper recognition and fair valuation.', type: 'text' },
+    image_url: { value: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80', type: 'image' },
+    cta_primary_text: { value: 'Get Started', type: 'text' },
+    cta_secondary_text: { value: 'Learn More', type: 'text' }
+  },
+  features: {
+    headline: { value: 'A Complete Ecosystem for Ideas', type: 'text' },
+    subheadline: { value: 'Our platform caters to all stakeholders in the innovation process, from idea conception to investment.', type: 'text' }
+  },
+  howItWorks: {
+    headline: { value: 'How IdeaVest Works', type: 'text' },
+    subheadline: { value: 'Our streamlined process ensures that great ideas get recognized, valued, and funded.', type: 'text' }
+  },
+  cta: {
+    headline: { value: 'Ready to Bring Your Ideas to Life?', type: 'text' },
+    subheadline: { value: 'Join our platform today and become part of an ecosystem that values innovation and creates opportunities for both idea creators and investors.', type: 'text' },
+    button_primary_text: { value: 'Sign Up Now', type: 'text' },
+    button_secondary_text: { value: 'Learn More', type: 'text' }
+  }
+};
+
+// Default features as fallback
+const defaultFeatures = [
+  {
+    id: '1',
+    title: 'Idea Holders',
+    description: 'Submit your innovative ideas with detailed descriptions and attachments.',
+    icon_name: 'LightbulbIcon',
+    color: 'bg-blue-50 dark:bg-blue-900/30',
+    display_order: 1
+  },
+  {
+    id: '2',
+    title: 'Experts',
+    description: 'Estimate value and pricing for ideas with professional insights.',
+    icon_name: 'ShieldCheck',
+    color: 'bg-emerald-50 dark:bg-emerald-900/30',
+    display_order: 2
+  },
+  {
+    id: '3',
+    title: 'Investors',
+    description: 'Discover and invest in promising ideas with complete copyright protection.',
+    icon_name: 'DollarSign',
+    color: 'bg-amber-50 dark:bg-amber-900/30',
+    display_order: 3
+  },
+  {
+    id: '4',
+    title: 'Administrators',
+    description: 'Manage users and oversee the idea approval process.',
+    icon_name: 'User',
+    color: 'bg-indigo-50 dark:bg-indigo-900/30',
+    display_order: 4
+  }
+];
+
+// Default steps as fallback
+const defaultSteps = [
+  {
+    id: '1',
+    title: 'Submit Your Idea',
+    description: 'Idea holders register and submit their innovations with detailed descriptions and any relevant attachments.',
+    step_number: '01',
+    display_order: 1
+  },
+  {
+    id: '2',
+    title: 'Expert Evaluation',
+    description: 'Our expert panel reviews the submission and provides a detailed valuation and price estimation.',
+    step_number: '02',
+    display_order: 2
+  },
+  {
+    id: '3',
+    title: 'Admin Approval',
+    description: 'Administrators verify the idea, ensure compliance with platform guidelines, and approve it for listing.',
+    step_number: '03',
+    display_order: 3
+  },
+  {
+    id: '4',
+    title: 'Investor Discovery',
+    description: 'Approved ideas become visible to investors who can search and filter based on various criteria.',
+    step_number: '04',
+    display_order: 4
+  },
+  {
+    id: '5',
+    title: 'Secure Agreements',
+    description: 'Interested investors sign a digital copyright agreement to access detailed idea information.',
+    step_number: '05',
+    display_order: 5
+  }
+];
+
 const Index = () => {
   const [animationPlayed, setAnimationPlayed] = useState(false);
   const [content, setContent] = useState({});
   const [features, setFeatures] = useState([]);
   const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   // Start animation after a short delay
   setTimeout(() => {
@@ -24,6 +125,8 @@ const Index = () => {
   useEffect(() => {
     const fetchContent = async () => {
       setLoading(true);
+      setHasError(false);
+      
       try {
         // Fetch page content
         const { data: contentData, error: contentError } = await supabase
@@ -66,6 +169,11 @@ const Index = () => {
         setSteps(stepsData);
       } catch (error) {
         console.error('Error fetching content:', error);
+        setHasError(true);
+        // Use default fallback content
+        setContent(defaultContent);
+        setFeatures(defaultFeatures);
+        setSteps(defaultSteps);
       } finally {
         setLoading(false);
       }
@@ -103,6 +211,10 @@ const Index = () => {
     if (content[section] && content[section][key]) {
       return content[section][key].value;
     }
+    // Use default content as fallback if available
+    if (defaultContent[section] && defaultContent[section][key]) {
+      return defaultContent[section][key].value;
+    }
     return defaultValue;
   };
 
@@ -122,6 +234,10 @@ const Index = () => {
     
     return icons[name] || <LightbulbIcon className="h-10 w-10 text-blue-500" />;
   };
+
+  // Use empty arrays as fallbacks for features and steps
+  const displayFeatures = features.length > 0 ? features : defaultFeatures;
+  const displaySteps = steps.length > 0 ? steps : defaultSteps;
 
   return (
     <Layout>
@@ -227,7 +343,7 @@ const Index = () => {
             initial="hidden"
             animate={animationPlayed ? "visible" : "hidden"}
           >
-            {features.map((feature, index) => (
+            {displayFeatures.map((feature, index) => (
               <motion.div
                 key={feature.id}
                 className="flex flex-col h-full bg-card rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
@@ -265,7 +381,7 @@ const Index = () => {
             <div className="absolute left-1/2 -ml-0.5 w-0.5 h-full bg-border"></div>
             
             <div className="space-y-12 relative">
-              {steps.map((step, index) => (
+              {displaySteps.map((step, index) => (
                 <div key={step.id} className="relative">
                   <div className={`flex items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
                     <motion.div 
@@ -323,6 +439,12 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {hasError && (
+        <div className="fixed bottom-4 right-4 bg-amber-100 border border-amber-300 text-amber-800 px-4 py-2 rounded shadow-md">
+          <p className="text-sm">Using fallback content due to loading error</p>
+        </div>
+      )}
     </Layout>
   );
 };
