@@ -612,8 +612,8 @@ export const ContentManagement = () => {
                 </p>
                 <HomePagePreview 
                   content={content} 
-                  features={features} 
-                  steps={steps} 
+                  features={features && Array.isArray(features) ? features : []} 
+                  steps={steps && Array.isArray(steps) ? steps : []} 
                 />
                 <div className="mt-4 flex justify-end">
                   <Button 

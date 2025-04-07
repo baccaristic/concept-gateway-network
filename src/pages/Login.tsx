@@ -23,14 +23,14 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background">
         <div className="w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="border-none shadow-lg">
+            <Card>
               <CardHeader className="space-y-1">
                 <div className="flex justify-center mb-2">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -75,7 +75,7 @@ const Login = () => {
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
@@ -85,7 +85,7 @@ const Login = () => {
                   <Button type="submit" className="w-full h-11" disabled={isLoading}>
                     {isLoading ? (
                       <div className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -99,10 +99,10 @@ const Login = () => {
                 
                 <div className="relative mt-6">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+                    <div className="w-full border-t border-border"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                    <span className="px-2 bg-card text-muted-foreground">Or continue with</span>
                   </div>
                 </div>
                 
@@ -138,7 +138,7 @@ const Login = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-center">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Don't have an account?{" "}
                   <Link to="/register" className="text-primary font-semibold hover:underline">
                     Sign up

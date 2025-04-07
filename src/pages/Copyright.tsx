@@ -4,6 +4,8 @@ import Layout from '@/components/Layout';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import { ColorSection, ColorHeading, ColorText, ColorHero } from '@/components/ui/color-section';
 
 const Copyright = () => {
   // Scroll to top on page load
@@ -16,135 +18,102 @@ const Copyright = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-16 pb-12 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
-              Copyright Policy
-            </h1>
-            <p className="text-gray-600">
-              Last Updated: {lastUpdated}
-            </p>
-          </div>
-        </div>
-      </section>
+      <ColorHero>
+        <ColorHeading level={1} className="mb-6">
+          Copyright Policy
+        </ColorHeading>
+        <ColorText>
+          Last Updated: {lastUpdated}
+        </ColorText>
+      </ColorHero>
 
-      {/* Copyright Policy Content */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="prose prose-lg max-w-none">
-                <p>
-                  IdeaVest respects the intellectual property rights of others and expects our users to do the same. This Copyright Policy outlines our procedures for addressing claims of copyright infringement and for responding to notices of alleged infringement.
-                </p>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">1. Copyright Protection for Ideas</h2>
-                <p>
-                  At IdeaVest, we understand the importance of protecting your innovative ideas. When you submit an idea to our platform, you retain ownership of your intellectual property rights. Our platform is designed to protect your ideas through several mechanisms:
-                </p>
-                <ul className="list-disc pl-6 mb-6">
-                  <li>Confidentiality agreements required for all users accessing idea details</li>
-                  <li>Secure data storage and transmission protocols</li>
-                  <li>Limited access controls based on user roles and permissions</li>
-                  <li>Digital watermarking of documents when appropriate</li>
-                  <li>Audit trails of who has accessed your idea information</li>
-                </ul>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">2. Digital Copyright Agreements</h2>
-                <p>
-                  Our platform facilitates digital copyright agreements between idea creators and investors. These agreements:
-                </p>
-                <ul className="list-disc pl-6 mb-6">
-                  <li>Are legally binding documents that protect the rights of idea creators</li>
-                  <li>Specify the terms and conditions under which investors can access and use idea information</li>
-                  <li>May include non-disclosure provisions, non-compete clauses, and licensing terms</li>
-                  <li>Create a verifiable record of the agreement between parties</li>
-                </ul>
-                <p>
-                  All users are required to abide by the terms of these agreements. Violations may result in account termination and potential legal consequences.
-                </p>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">3. Copyright Infringement Claims</h2>
-                <p>
-                  If you believe that your copyrighted work has been copied and is accessible on our platform in a way that constitutes copyright infringement, you may notify our Copyright Agent by providing the following information:
-                </p>
-                <ol className="list-decimal pl-6 mb-6">
-                  <li>A physical or electronic signature of a person authorized to act on behalf of the owner of the copyright that has allegedly been infringed.</li>
-                  <li>Identification of the copyrighted work claimed to have been infringed.</li>
-                  <li>Identification of the material that is claimed to be infringing and information reasonably sufficient to permit IdeaVest to locate the material.</li>
-                  <li>Information reasonably sufficient to permit IdeaVest to contact the complaining party, such as an address, telephone number, and, if available, an email address.</li>
-                  <li>A statement that the complaining party has a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.</li>
-                  <li>A statement that the information in the notification is accurate, and under penalty of perjury, that the complaining party is authorized to act on behalf of the owner of the copyright that is allegedly infringed.</li>
-                </ol>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">4. Counter-Notification Procedures</h2>
-                <p>
-                  If material you posted on IdeaVest has been taken down due to a copyright infringement claim, you may file a counter-notification by providing our Copyright Agent with the following information:
-                </p>
-                <ol className="list-decimal pl-6 mb-6">
-                  <li>Your physical or electronic signature.</li>
-                  <li>Identification of the material that has been removed and the location at which the material appeared before it was removed.</li>
-                  <li>A statement under penalty of perjury that you have a good faith belief that the material was removed or disabled as a result of mistake or misidentification of the material.</li>
-                  <li>Your name, address, and telephone number, and a statement that you consent to the jurisdiction of the federal court in the district where you live (or in San Francisco, California if you live outside the United States), and that you will accept service of process from the person who provided the original notification of alleged infringement.</li>
-                </ol>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Repeat Infringer Policy</h2>
-                <p>
-                  In accordance with applicable laws, IdeaVest maintains a policy to terminate, in appropriate circumstances, the accounts of users who repeatedly infringe copyrights or other intellectual property rights of others.
-                </p>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">6. User Obligations</h2>
-                <p>
-                  All users of IdeaVest are expected to:
-                </p>
-                <ul className="list-disc pl-6 mb-6">
-                  <li>Respect the intellectual property rights of others</li>
-                  <li>Only submit content for which they hold the necessary rights or permissions</li>
-                  <li>Honor confidentiality agreements and copyright notices</li>
-                  <li>Report any suspected copyright infringements they encounter on our platform</li>
-                </ul>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">7. Changes to This Policy</h2>
-                <p>
-                  We may update this Copyright Policy from time to time to reflect changes to our practices or for other operational, legal, or regulatory reasons. We will notify you of any material changes by posting the new policy on this page and updating the "Last Updated" date.
-                </p>
-                
-                <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">8. Contact Information</h2>
-                <p>
-                  For copyright matters, please contact our Copyright Agent at:
-                </p>
-                <p>
-                  IdeaVest Copyright Agent<br />
-                  123 Innovation Drive<br />
-                  San Francisco, CA 94103<br />
-                  copyright@ideavest.com<br />
-                  (555) 123-4567
-                </p>
-              </div>
+      {/* Copyright Content */}
+      <ColorSection>
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="prose prose-lg max-w-none">
+              <p>
+                At IdeaVest, we respect the intellectual property rights of others and expect our users to do the same. This Copyright Policy outlines our procedures for responding to notices of alleged copyright infringement.
+              </p>
               
-              <div className="mt-12 pt-8 border-t border-gray-200">
-                <p className="text-gray-600 mb-6">
-                  By using IdeaVest, you acknowledge that you have read, understood, and agree to our Copyright Policy.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild>
-                    <Link to="/terms">View Terms of Service</Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link to="/privacy">View Privacy Policy</Link>
-                  </Button>
-                </div>
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">1. Digital Millennium Copyright Act</h2>
+              <p>
+                IdeaVest complies with the provisions of the Digital Millennium Copyright Act (DMCA) applicable to internet service providers. If you believe that material available on or through our Services infringes your copyright, you may request removal of those materials by submitting a written notification to our Copyright Agent.
+              </p>
+              
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">2. DMCA Notice Requirements</h2>
+              <p>
+                In accordance with the DMCA, the written notice (the "DMCA Notice") must include substantially the following:
+              </p>
+              <ul className="list-disc pl-6 mb-6">
+                <li>Your physical or electronic signature.</li>
+                <li>Identification of the copyrighted work you believe to have been infringed or, if the claim involves multiple works, a representative list of such works.</li>
+                <li>Identification of the material you believe to be infringing in a sufficiently precise manner to allow us to locate that material.</li>
+                <li>Adequate information by which we can contact you (including your name, postal address, telephone number, and, if available, email address).</li>
+                <li>A statement that you have a good faith belief that use of the copyrighted material is not authorized by the copyright owner, its agent, or the law.</li>
+                <li>A statement that the information in the written notice is accurate.</li>
+                <li>A statement, under penalty of perjury, that you are authorized to act on behalf of the copyright owner.</li>
+              </ul>
+              
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">3. Copyright Agent</h2>
+              <p>
+                Our designated Copyright Agent to receive DMCA Notices is:
+              </p>
+              <p>
+                Legal Department<br />
+                IdeaVest, Inc.<br />
+                123 Innovation Drive<br />
+                San Francisco, CA 94103<br />
+                Email: copyright@ideavest.com
+              </p>
+              
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">4. Counter-Notice</h2>
+              <p>
+                If you believe that your content that was removed (or to which access was disabled) is not infringing, or that you have the authorization from the copyright owner, the copyright owner's agent, or pursuant to the law, to post and use the material in your content, you may send a counter-notice containing the following information to our Copyright Agent:
+              </p>
+              <ul className="list-disc pl-6 mb-6">
+                <li>Your physical or electronic signature.</li>
+                <li>Identification of the content that has been removed or to which access has been disabled and the location at which the content appeared before it was removed or disabled.</li>
+                <li>A statement that you have a good faith belief that the content was removed or disabled as a result of mistake or a misidentification of the content.</li>
+                <li>Your name, address, telephone number, and email address.</li>
+                <li>A statement that you consent to the jurisdiction of the federal court in San Francisco, California.</li>
+                <li>A statement that you will accept service of process from the person who provided notification of the alleged infringement.</li>
+              </ul>
+              
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">5. Repeat Infringers</h2>
+              <p>
+                It is our policy in appropriate circumstances to disable and/or terminate the accounts of users who are repeat infringers.
+              </p>
+              
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">6. Changes to Our Copyright Policy</h2>
+              <p>
+                IdeaVest reserves the right to modify this Copyright Policy at any time. We will post any changes to this policy on this page, and if the changes are significant, we will provide a more prominent notice.
+              </p>
+            </div>
+            
+            <div className="mt-12 pt-8 border-t border-border">
+              <p className="text-muted-foreground mb-6">
+                If you have any questions about our Copyright Policy, please contact us at copyright@ideavest.com.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild>
+                  <Link to="/contact">
+                    Contact Us <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/terms">View Terms of Service</Link>
+                </Button>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
-      </section>
+      </ColorSection>
     </Layout>
   );
 };
