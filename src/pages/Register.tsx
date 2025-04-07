@@ -55,7 +55,7 @@ const Register = () => {
 
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background">
         <div className="w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
