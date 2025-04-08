@@ -9,10 +9,11 @@ import { ideasApi } from '@/services/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
-import { Upload, Link, FileVideo, Youtube } from 'lucide-react';
+import { Upload, Link, FileVideo, Youtube, File, FileText, Paperclip } from 'lucide-react';
+import { DocumentData } from '@/types';
 
 // Define step types for strong typing
-type WizardStep = 'generalInfo' | 'details' | 'innovation' | 'team' | 'budget' | 'review';
+type WizardStep = 'generalInfo' | 'details' | 'innovation' | 'team' | 'budget' | 'documents' | 'review';
 
 // Define industry categories
 const industryCategories = [
@@ -152,6 +153,9 @@ const IdeaWizard = () => {
     accept_conditions: false,
     authorize_sharing: false
   });
+
+  // Add state for file uploads
+  const [documents, setDocuments] = useState<DocumentData[]>([]);
   
   // State for target markets (repeatable form)
   const [currentMarkets, setCurrentMarkets] = useState<Array<{
@@ -174,6 +178,39 @@ const IdeaWizard = () => {
   
   // State for loading
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Handle document upload
+  const handleDocumentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+    
+    const newDocuments: DocumentData[] = Array.from(files).map(file => ({
+      name: file.name,
+      file: file,
+      type: file.type,
+      size: file.size,
+      description: ''
+    }));
+    
+    setDocuments([...documents, ...newDocuments]);
+    
+    // Reset file input
+    event.target.value = '';
+  };
+  
+  // Remove document
+  const removeDocument = (index: number) => {
+    const updatedDocs = [...documents];
+    updatedDocs.splice(index, 1);
+    setDocuments(updatedDocs);
+  };
+  
+  // Update document description
+  const updateDocumentDescription = (index: number, description: string) => {
+    const updatedDocs = [...documents];
+    updatedDocs[index].description = description;
+    setDocuments(updatedDocs);
+  };
   
   // Handle form input changes
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -249,6 +286,9 @@ const IdeaWizard = () => {
         setCurrentStep('budget');
         break;
       case 'budget':
+        setCurrentStep('documents');
+        break;
+      case 'documents':
         setCurrentStep('review');
         break;
       default:
@@ -271,8 +311,11 @@ const IdeaWizard = () => {
       case 'budget':
         setCurrentStep('team');
         break;
-      case 'review':
+      case 'documents':
         setCurrentStep('budget');
+        break;
+      case 'review':
+        setCurrentStep('documents');
         break;
       default:
         break;
@@ -344,7 +387,8 @@ const IdeaWizard = () => {
             certify_information: formData.certify_information,
             accept_conditions: formData.accept_conditions,
             authorize_sharing: formData.authorize_sharing
-          }
+          },
+          documents: documents
         }
       });
       
@@ -371,10 +415,11 @@ const IdeaWizard = () => {
   const getProgress = () => {
     const steps = {
       'generalInfo': 0,
-      'details': 20,
-      'innovation': 40,
-      'team': 60,
-      'budget': 80,
+      'details': 16,
+      'innovation': 32,
+      'team': 48,
+      'budget': 64,
+      'documents': 80,
       'review': 100
     };
     return steps[currentStep];
@@ -1245,6 +1290,103 @@ const IdeaWizard = () => {
             </div>
           </div>
         );
+
+      case 'documents':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-primary text-lg font-bold mb-5 pb-2 py-6 border-primary/30 border-b">Supporting Documents</h2>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 flex-shrink-0 text-white text-center leading-8 rounded-full bg-blue-500 mr-3">i</div>
+                  <div className="text-sm text-blue-800 dark:text-blue-200">
+                    Upload any supporting documents that help explain your idea. This can include business plans, presentations, diagrams, prototypes, or any other relevant material.
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2 mb-4">
+                  <Paperclip className="h-4 w-4" /> Upload Documents
+                </Label>
+                
+                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                  <FileText className="h-10 w-10 mx-auto mb-4 text-gray-400" />
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Drag and drop your files here, or click to browse
+                    </p>
+                    
+                    <Input 
+                      type="file" 
+                      id="document-upload" 
+                      className="hidden"
+                      onChange={handleDocumentUpload}
+                      multiple
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={() => document.getElementById('document-upload')?.click()}
+                      className="mx-auto"
+                    >
+                      <Upload className="h-4 w-4 mr-2" /> Browse Files
+                    </Button>
+                  </div>
+                </div>
+                
+                {documents.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-md font-medium mb-4">Uploaded Documents ({documents.length})</h3>
+                    <div className="space-y-3">
+                      {documents.map((doc, index) => (
+                        <div key={index} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+                          <div className="flex items-center gap-3 mb-3 md:mb-0">
+                            <File className="h-5 w-5 text-primary" />
+                            <div>
+                              <p className="font-medium">{doc.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(doc.size / 1024).toFixed(2)} KB • {doc.type.split('/')[1]}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-4 items-center">
+                            <Input 
+                              placeholder="Add description (optional)"
+                              value={doc.description || ''}
+                              onChange={e => updateDocumentDescription(index, e.target.value)}
+                              className="max-w-[200px]"
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => removeDocument(index)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 mt-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 flex-shrink-0 text-white text-center leading-8 rounded-full bg-yellow-500 mr-3">!</div>
+                  <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                    Maximum file size: 10MB per document. Supported formats: PDF, DOC, DOCX, PPT, PPTX, PNG, JPG, JPEG.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
         
       case 'review':
         return (
@@ -1321,6 +1463,19 @@ const IdeaWizard = () => {
                   </div>
                 )}
                 
+                {documents.length > 0 && (
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right font-semibold">Documents:</Label>
+                    <div className="col-span-3">
+                      <ul className="list-disc pl-5">
+                        {documents.map((doc, index) => (
+                          <li key={index}>{doc.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+                
                 {!formData.certify_information && (
                   <div className="col-span-4 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded border border-yellow-200 dark:border-yellow-800">
                     <p className="text-yellow-800 dark:text-yellow-200 text-sm">
@@ -1375,6 +1530,9 @@ const IdeaWizard = () => {
           </div>
           <div className={`text-xs ${currentStep === 'budget' ? 'text-primary font-bold' : 'text-gray-500'}`}>
             Budget
+          </div>
+          <div className={`text-xs ${currentStep === 'documents' ? 'text-primary font-bold' : 'text-gray-500'}`}>
+            Documents
           </div>
           <div className={`text-xs ${currentStep === 'review' ? 'text-primary font-bold' : 'text-gray-500'}`}>
             Review
