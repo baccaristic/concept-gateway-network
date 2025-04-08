@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const HeaderThemeToggle = () => {
   return (
-    <div className="ml-2">
+    <div className="flex items-center ml-4">
       <ThemeToggle />
     </div>
   );
