@@ -101,7 +101,7 @@ export const ideasApi = {
     description: string;
     category?: string;
     estimatedBudget?: number;
-    additional_data?: IdeaAdditionalData;
+    additionalData?: IdeaAdditionalData;
   }): Promise<Idea> => {
     const response = await fetch(`${API_BASE_URL}/ideas/new`, {
       method: 'POST',

@@ -17,7 +17,7 @@ export interface Idea {
   tags?: string[];
   attachments?: Attachment[];
   comments?: Comment[];
-  additional_data?: IdeaAdditionalData;
+  additionalData?: IdeaAdditionalData;
 }
 
 export interface IdeaAdditionalData {
@@ -36,28 +36,28 @@ export interface IdeaAdditionalData {
 }
 
 export interface InnovationData {
-  project_description?: string;
-  problem_statement?: string;
+  projectDescription?: string;
+  problemStatement?: string;
   solution?: string;
-  innovation_factors?: string;
+  innovationFactors?: string;
   competitors?: string;
-  differentiating_factors?: string;
-  business_model?: string;
-  growth_potential?: string;
-  product_video_url?: string;
-  product_website?: string;
-  has_other_products?: boolean;
+  differentiatingFactors?: string;
+  businessModel?: string;
+  growthPotential?: string;
+  productVideoUrl?: string;
+  productWebsite?: string;
+  hasOtherProducts?: boolean;
 }
 
 export interface MarketData {
-  target_market?: string;
-  current_markets?: MarketEntry[];
-  future_markets?: MarketEntry[];
-  market_size?: string;
-  target_market_share?: string;
-  growth_strategy?: string;
-  current_users?: string;
-  projected_users?: string;
+  targetMarket?: string;
+  currentMarkets?: MarketEntry[];
+  futureMarkets?: MarketEntry[];
+  marketSize?: string;
+  targetMarketShare?: string;
+  growthStrategy?: string;
+  currentUsers?: string;
+  projectedUsers?: string;
 }
 
 export interface MarketEntry {
@@ -68,38 +68,38 @@ export interface MarketEntry {
 }
 
 export interface ProgressData {
-  project_stage?: string;
-  current_progress?: string;
-  joined_incubator?: boolean;
-  won_entrepreneurship_award?: boolean;
-  filed_patents?: boolean;
+  projectStage?: string;
+  currentProgress?: string;
+  joinedIncubator?: boolean;
+  wonEntrepreneurshipAward?: boolean;
+  filedPatents?: boolean;
 }
 
 export interface TeamData {
-  number_of_cofounders?: string;
-  team_description?: string;
-  team_capable?: boolean;
-  time_working_on_project?: string;
-  worked_together_before?: boolean;
-  launched_startup_before?: boolean;
+  numberOfCofounders?: string;
+  teamDescription?: string;
+  teamCapable?: boolean;
+  timeWorkingOnProject?: string;
+  workedTogetherBefore?: boolean;
+  launchedStartupBefore?: boolean;
 }
 
 export interface PresentationData {
-  pitch_video_url?: string;
-  pitch_deck_url?: string;
+  pitchVideoUrl?: string;
+  pitchDeckUrl?: string;
 }
 
 export interface FundingData {
-  fundraising_goal?: string;
-  revenue_projection?: string;
+  fundraisingGoal?: string;
+  revenueProjection?: string;
 }
 
 export interface AdditionalInfo {
-  why_apply?: string;
-  want_other_benefits?: boolean;
-  certify_information?: boolean;
-  accept_conditions?: boolean;
-  authorize_sharing?: boolean;
+  whyApply?: string;
+  wantOtherBenefits?: boolean;
+  certifyInformation?: boolean;
+  acceptConditions?: boolean;
+  authorizeSharing?: boolean;
 }
 
 export interface DocumentData {
