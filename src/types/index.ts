@@ -7,7 +7,7 @@ export interface Idea {
   status: IdeaStatus;
   createdAt: string;
   updatedAt?: string;
-  owner_id?: string;
+  ownerId?: string;
   submittedBy?: string;
   submitterName?: string;
   estimatedBudget?: number;

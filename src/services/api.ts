@@ -1,3 +1,4 @@
+
 /**
  * API service for handling all backend communication
  */
@@ -103,10 +104,16 @@ export const ideasApi = {
     estimatedBudget?: number;
     additionalData?: IdeaAdditionalData;
   }): Promise<Idea> => {
+    // Make sure we're using camelCase for all fields
+    const payload = {
+      ...ideaData,
+      // Convert any remaining snake_case fields to camelCase if necessary
+    };
+    
     const response = await fetch(`${API_BASE_URL}/ideas/new`, {
       method: 'POST',
       headers: setAuthHeader(),
-      body: JSON.stringify(ideaData)
+      body: JSON.stringify(payload)
     });
     
     if (!response.ok) {
