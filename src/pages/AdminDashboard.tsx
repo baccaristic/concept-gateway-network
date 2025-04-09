@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +12,7 @@ import { DashboardStatCards } from '@/components/admin/DashboardStatCards';
 import { DashboardCharts } from '@/components/admin/DashboardCharts';
 import { IdeasManagementTable } from '@/components/admin/IdeasManagementTable';
 import { UsersManagementTable } from '@/components/admin/UsersManagementTable';
-import { ContentManagement } from '@/components/admin/ContentManagement';
+import ContentManagement from '@/components/admin/ContentManagement';
 
 const AdminDashboard = () => {
   const { user } = useAuth();

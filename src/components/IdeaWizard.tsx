@@ -332,63 +332,63 @@ const IdeaWizard = () => {
         description: formData.description,
         category: formData.category,
         estimatedBudget: formData.estimated_budget ? Number(formData.estimated_budget) : undefined,
-        additional_data: {
+        additionalData: {
           sector: formData.sector,
           technology: formData.technology,
           region: formData.region,
           website: formData.website,
           innovation: {
-            project_description: formData.project_description,
-            problem_statement: formData.problem_statement,
+            projectDescription: formData.project_description,
+            problemStatement: formData.problem_statement,
             solution: formData.solution,
-            innovation_factors: formData.innovation_factors,
+            innovationFactors: formData.innovation_factors,
             competitors: formData.competitors,
-            differentiating_factors: formData.differentiating_factors,
-            business_model: formData.business_model,
-            growth_potential: formData.growth_potential,
-            product_video_url: formData.product_video_url,
-            product_website: formData.product_website,
-            has_other_products: formData.has_other_products
+            differentiatingFactors: formData.differentiating_factors,
+            businessModel: formData.business_model,
+            growthPotential: formData.growth_potential,
+            productVideoUrl: formData.product_video_url,
+            productWebsite: formData.product_website,
+            hasOtherProducts: formData.has_other_products
           },
           market: {
-            target_market: formData.target_market,
-            current_markets: currentMarkets,
-            future_markets: futureMarkets,
-            market_size: formData.market_size,
-            target_market_share: formData.target_market_share,
-            growth_strategy: formData.growth_strategy,
-            current_users: formData.current_users,
-            projected_users: formData.projected_users
+            targetMarket: formData.target_market,
+            currentMarkets: currentMarkets,
+            futureMarkets: futureMarkets,
+            marketSize: formData.market_size,
+            targetMarketShare: formData.target_market_share,
+            growthStrategy: formData.growth_strategy,
+            currentUsers: formData.current_users,
+            projectedUsers: formData.projected_users
           },
           progress: {
-            project_stage: formData.project_stage,
-            current_progress: formData.current_progress,
-            joined_incubator: formData.joined_incubator,
-            won_entrepreneurship_award: formData.won_entrepreneurship_award,
-            filed_patents: formData.filed_patents
+            projectStage: formData.project_stage,
+            currentProgress: formData.current_progress,
+            joinedIncubator: formData.joined_incubator,
+            wonEntrepreneurshipAward: formData.won_entrepreneurship_award,
+            filedPatents: formData.filed_patents
           },
           team: {
-            number_of_cofounders: formData.number_of_cofounders,
-            team_description: formData.team_description,
-            team_capable: formData.team_capable,
-            time_working_on_project: formData.time_working_on_project,
-            worked_together_before: formData.worked_together_before,
-            launched_startup_before: formData.launched_startup_before
+            numberOfCofounders: formData.number_of_cofounders,
+            teamDescription: formData.team_description,
+            teamCapable: formData.team_capable,
+            timeWorkingOnProject: formData.time_working_on_project,
+            workedTogetherBefore: formData.worked_together_before,
+            launchedStartupBefore: formData.launched_startup_before
           },
           presentation: {
-            pitch_video_url: formData.pitch_video_url,
-            pitch_deck_url: '' // We'll handle pitch deck separately if needed
+            pitchVideoUrl: formData.pitch_video_url,
+            pitchDeckUrl: '' // We'll handle pitch deck separately if needed
           },
           funding: {
-            fundraising_goal: formData.fundraising_goal,
-            revenue_projection: formData.revenue_projection
+            fundraisingGoal: formData.fundraising_goal,
+            revenueProjection: formData.revenue_projection
           },
           additional: {
-            why_apply: formData.why_apply,
-            want_other_benefits: false, // Default value
-            certify_information: formData.certify_information,
-            accept_conditions: formData.accept_conditions,
-            authorize_sharing: formData.authorize_sharing
+            whyApply: formData.why_apply,
+            wantOtherBenefits: false, // Default value
+            certifyInformation: formData.certify_information,
+            acceptConditions: formData.accept_conditions,
+            authorizeSharing: formData.authorize_sharing
           }
         }
       });
