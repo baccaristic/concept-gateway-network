@@ -1,7 +1,7 @@
 /**
  * API service for handling all backend communication
  */
-import { Idea, User, Comment, UserRole, IdeaStatus, Agreement } from "@/types";
+import { Idea, User, Comment, UserRole, IdeaStatus, Agreement, IdeaAdditionalData, Attachment } from "@/types";
 
 // Base API URL - change this to your Spring Boot server address in production
 const API_BASE_URL = 'http://localhost:8083';
@@ -100,7 +100,8 @@ export const ideasApi = {
     title: string;
     description: string;
     category?: string;
-    estimated_budget?: number;
+    estimatedBudget?: number;
+    additional_data?: IdeaAdditionalData;
   }): Promise<Idea> => {
     const response = await fetch(`${API_BASE_URL}/ideas/new`, {
       method: 'POST',
@@ -151,6 +152,28 @@ export const ideasApi = {
     if (!response.ok) {
       throw new Error('Failed to like idea');
     }
+  },
+  
+  uploadAttachment: async (ideaId: string, file: File, description?: string): Promise<Attachment> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('description', description || '');
+    
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/ideas/${ideaId}/attachments`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to upload attachment');
+    }
+    
+    return await response.json();
   }
 };
 
