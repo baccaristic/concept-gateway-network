@@ -438,16 +438,6 @@ const IdeaDetails = () => {
                   Documents
                 </TabsTrigger>
               </TabsList>
-              
-              {/* Updated tab indicator with better alignment calculation */}
-              <div className="absolute bottom-6 h-1 bg-primary transition-all duration-300 rounded-full"
-                   style={{
-                     left: `calc((100% / 6) * ${['innovation', 'market', 'progress', 'team', 'funding', 'documents'].indexOf(activeTab)})`,
-                     width: 'calc(100% / 6)',
-                     transform: 'translateX(8%)',  /* Fine-tuning the alignment */
-                     maxWidth: 'calc(100% / 6 - 16px)'
-                   }}
-              />
             </div>
 
             <TabsContent value="innovation" className="space-y-6 animate-fade-in">
