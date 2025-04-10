@@ -20,13 +20,11 @@ import { User as UserType } from '@/types';
 import NotificationBell from './NotificationBell';
 import HeaderThemeToggle from './HeaderThemeToggle';
 
-interface HeaderProps {
-  user?: UserType;
-}
 
-const Header = ({ user }: HeaderProps) => {
+
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
 
   const toggleMenu = () => {

@@ -54,8 +54,7 @@ const Dashboard = () => {
           { title: 'My Ideas', value: ideas.length, icon: <FileText className="h-4 w-4" />, color: 'bg-blue-500' },
           { title: 'Approved', value: ideas.filter(i => i.status === 'APPROVED').length, icon: <CheckCircle className="h-4 w-4" />, color: 'bg-emerald-500' },
           { title: 'Pending', value: ideas.filter(i => i.status === 'AWAITING_APPROVAL').length, icon: <Clock className="h-4 w-4" />, color: 'bg-amber-500' },
-          { title: 'Estimated Value', value: `$${ideas.reduce((sum, idea) => sum + (idea.estimatedPrice || 0), 0).toLocaleString()}`, icon: <DollarSign className="h-4 w-4" />, color: 'bg-indigo-500' },
-        ];
+          ];
       case 'EXPERT':
         return [
           { title: 'To Estimate', value: 12, icon: <FileText className="h-4 w-4" />, color: 'bg-blue-500' },
@@ -68,15 +67,12 @@ const Dashboard = () => {
           { title: 'Total Ideas', value: 157, icon: <FileText className="h-4 w-4" />, color: 'bg-blue-500' },
           { title: 'Total Users', value: 83, icon: <Users className="h-4 w-4" />, color: 'bg-purple-500' },
           { title: 'Pending Approval', value: 23, icon: <Clock className="h-4 w-4" />, color: 'bg-amber-500' },
-          { title: 'Revenue', value: '$45,750', icon: <DollarSign className="h-4 w-4" />, color: 'bg-emerald-500' },
-        ];
+          ];
       case 'INVESTOR':
         return [
           { title: 'Viewed Ideas', value: 34, icon: <Eye className="h-4 w-4" />, color: 'bg-blue-500' },
           { title: 'Signed Agreements', value: 12, icon: <FileText className="h-4 w-4" />, color: 'bg-emerald-500' },
-          { title: 'Investment Budget', value: '$150,000', icon: <DollarSign className="h-4 w-4" />, color: 'bg-indigo-500' },
-          { title: 'Invested', value: '$75,000', icon: <TrendingUp className="h-4 w-4" />, color: 'bg-purple-500' },
-        ];
+          ];
       default:
         return [];
     }

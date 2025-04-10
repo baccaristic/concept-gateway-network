@@ -512,7 +512,7 @@ export const adminApi = {
     const response = await fetch(`${API_BASE_URL}/admin/assign`, {
       method: 'POST',
       headers: setAuthHeader(),
-      body: JSON.stringify({ ideaId, expertId })
+      body: JSON.stringify({ ideaId, userId: expertId })
     });
     
     if (!response.ok) {

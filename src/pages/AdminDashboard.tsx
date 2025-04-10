@@ -12,7 +12,6 @@ import { DashboardStatCards } from '@/components/admin/DashboardStatCards';
 import { DashboardCharts } from '@/components/admin/DashboardCharts';
 import { IdeasManagementTable } from '@/components/admin/IdeasManagementTable';
 import { UsersManagementTable } from '@/components/admin/UsersManagementTable';
-import ContentManagement from '@/components/admin/ContentManagement';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -179,10 +178,6 @@ const AdminDashboard = () => {
               onUpdateUserRole={handleUpdateUserRole} 
               onShowAddExpertModal={() => setShowAddExpertModal(true)} 
             />
-          </TabsContent>
-          
-          <TabsContent value="content">
-            <ContentManagement />
           </TabsContent>
         </Tabs>
       </div>

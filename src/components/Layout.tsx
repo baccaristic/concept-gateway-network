@@ -13,7 +13,7 @@ interface LayoutProps {
 const Layout = ({ children, user, hideFooter = false }: LayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col bg-background dark:bg-background text-foreground dark:text-foreground">
-      <Header user={user} />
+      <Header />
       <main className="flex-grow">
         <div className="page-transition">
           {children}

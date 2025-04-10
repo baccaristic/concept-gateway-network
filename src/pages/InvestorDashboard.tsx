@@ -62,11 +62,7 @@ const InvestorDashboard = () => {
     try {
       const data = await ideasApi.getInvestorEstimatedIdeas();
       // Add canView property to each idea
-      const ideasWithView = data.map(idea => ({
-        ...idea,
-        canView: false // Set default, will be updated based on agreements
-      }));
-      setIdeas(ideasWithView);
+      setIdeas(data);
     } catch (error) {
       console.error("Error fetching ideas:", error);
       toast({
@@ -82,14 +78,7 @@ const InvestorDashboard = () => {
       const data = await investorApi.getMyAgreements();
       setAgreements(data);
       
-      // Update canView property for ideas with agreements
-      setIdeas(prevIdeas => prevIdeas.map(idea => ({
-        ...idea,
-        canView: data.some(agreement => 
-          agreement.ideaId === idea.id && 
-          (agreement.status === 'SIGNED' || agreement.status === 'APPROVED')
-        )
-      })));
+
     } catch (error) {
       console.error("Error fetching agreements:", error);
       toast({

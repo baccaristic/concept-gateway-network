@@ -18,6 +18,7 @@ export interface Idea {
   attachments?: Attachment[];
   comments?: Comment[];
   additionalData?: IdeaAdditionalData;
+  canView?: boolean;
 }
 
 export interface IdeaAdditionalData {
