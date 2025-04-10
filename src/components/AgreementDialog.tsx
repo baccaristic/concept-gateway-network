@@ -94,6 +94,7 @@ const AgreementDialog = ({
 }: AgreementDialogProps) => {
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [agreementRead, setAgreementRead] = useState(false);
+  const [showSignatureCanvas, setShowSignatureCanvas] = useState(false);
   
   const handleSignatureChange = (data: string) => {
     setSignatureData(data);
@@ -104,11 +105,26 @@ const AgreementDialog = ({
       onSignAgreement(signatureData);
     }
   };
+
+  const handleProceedToSign = () => {
+    setShowSignatureCanvas(true);
+  };
+
+  const handleBackToAgreement = () => {
+    setShowSignatureCanvas(false);
+  };
   
   if (!idea) return null;
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Reset state when closing the dialog
+      if (!newOpen) {
+        setShowSignatureCanvas(false);
+        setSignatureData(null);
+      }
+      onOpenChange(newOpen);
+    }}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
         <DialogHeader className="p-6 bg-gradient-to-r from-primary/10 to-background">
           <div className="flex items-center gap-3">
@@ -117,88 +133,127 @@ const AgreementDialog = ({
             </div>
             <div>
               <DialogTitle className="text-xl">
-                Investment Agreement for "{idea.title}"
+                {showSignatureCanvas ? "Sign" : "Review"} Investment Agreement for "{idea.title}"
               </DialogTitle>
               <DialogDescription className="text-muted-foreground mt-1">
-                Please review the terms and sign the agreement below.
+                {showSignatureCanvas 
+                  ? "Please provide your signature to confirm the agreement" 
+                  : "Please review the terms before proceeding to sign"}
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
         
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div 
-            className="my-4 mx-6 overflow-y-auto border rounded-lg shadow-sm flex-1 bg-card"
-            onScroll={(e) => {
-              const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-              if (scrollHeight - scrollTop <= clientHeight + 10) {
-                setAgreementRead(true);
-              }
-            }}
-          >
-            <motion.div
+          {showSignatureCanvas ? (
+            <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
+              className="px-6 pt-6 pb-4 flex-1"
             >
-              {renderAgreementContent(idea)}
+              <div className="bg-muted/30 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <PenLine className="h-5 w-5 text-primary" />
+                  <h4 className="font-medium text-lg">Your Signature</h4>
+                </div>
+                <p className="text-muted-foreground mb-6">
+                  By signing below, you confirm that you have read and agree to the terms outlined in the investment agreement.
+                </p>
+                <SignatureCanvas 
+                  onSave={handleSignatureChange} 
+                  width={window.innerWidth > 768 ? 700 : 300}
+                  height={220} 
+                />
+              </div>
             </motion.div>
-          </div>
-          
-          {!agreementRead && (
-            <div className="px-6 py-2">
-              <div className="flex items-center justify-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 py-2 px-4 rounded-md">
-                <Scroll className="h-4 w-4" />
-                <span>Please read the entire agreement before signing</span>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex-1 overflow-hidden flex flex-col"
+            >
+              <div 
+                className="my-6 mx-6 overflow-y-auto border rounded-lg shadow-sm flex-1 bg-card"
+                onScroll={(e) => {
+                  const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+                  if (scrollHeight - scrollTop <= clientHeight + 10) {
+                    setAgreementRead(true);
+                  }
+                }}
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {renderAgreementContent(idea)}
+                </motion.div>
               </div>
-            </div>
+              
+              {!agreementRead && (
+                <div className="px-6 pb-4">
+                  <div className="flex items-center justify-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 py-2 px-4 rounded-md">
+                    <Scroll className="h-4 w-4" />
+                    <span>Please read the entire agreement before proceeding</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           )}
-          
-          <div className="px-6 pt-2 pb-4">
-            <div className="bg-muted/30 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <PenLine className="h-5 w-5 text-primary" />
-                <h4 className="font-medium text-lg">Your Signature</h4>
-              </div>
-              <SignatureCanvas 
-                onSave={handleSignatureChange} 
-                width={window.innerWidth > 768 ? 700 : 300}
-                height={200} 
-              />
-            </div>
-          </div>
         </div>
         
         <DialogFooter className="p-6 bg-muted/20 border-t flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 hidden sm:flex items-center">
-            {signatureData && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400"
+          {showSignatureCanvas ? (
+            <>
+              <div className="flex-1 hidden sm:flex items-center">
+                {signatureData && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400"
+                  >
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span>Signature recorded</span>
+                  </motion.div>
+                )}
+              </div>
+              <div className="flex gap-3 w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  onClick={handleBackToAgreement}
+                  className="flex-1 sm:flex-auto"
+                >
+                  Back
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={!signatureData || isLoading}
+                  className="flex-1 sm:flex-auto bg-primary hover:bg-primary/90 gap-1"
+                >
+                  {isLoading ? "Processing..." : "Complete Signing"}
+                  {!isLoading && <FileText className="h-4 w-4" />}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-3 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                className="flex-1 sm:flex-auto"
               >
-                <CheckCircle2 className="h-5 w-5" />
-                <span>Signature recorded</span>
-              </motion.div>
-            )}
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="flex-1 sm:flex-auto"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={!signatureData || !agreementRead || isLoading}
-              className="flex-1 sm:flex-auto bg-primary hover:bg-primary/90 gap-1"
-            >
-              {isLoading ? "Processing..." : "Sign Agreement"}
-              {!isLoading && <FileText className="h-4 w-4" />}
-            </Button>
-          </div>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleProceedToSign} 
+                disabled={!agreementRead}
+                className="flex-1 sm:flex-auto bg-primary hover:bg-primary/90 gap-1"
+              >
+                Proceed to Sign
+                <PenLine className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
