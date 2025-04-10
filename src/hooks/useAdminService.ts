@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { adminApi } from '@/services/api';
 import { Idea, User, UserRole, IdeaStatus } from '@/types';
@@ -42,6 +41,32 @@ export function useAdminService() {
       return newExpert;
     } catch (error) {
       toast.error(`Error adding expert: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getAllExperts = async () => {
+    setIsLoading(true);
+    try {
+      const experts = await adminApi.getAllExperts();
+      return experts;
+    } catch (error) {
+      toast.error(`Error fetching experts: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const assignIdeaToExpert = async (ideaId: string, expertId: string) => {
+    setIsLoading(true);
+    try {
+      await adminApi.assignIdeaToExpert(ideaId, expertId);
+      toast.success('Idea assigned to expert successfully');
+    } catch (error) {
+      toast.error(`Error assigning idea to expert: ${error.message}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -119,6 +144,8 @@ export function useAdminService() {
     getAllUsers,
     updateUserRole,
     addExpert,
+    getAllExperts,
+    assignIdeaToExpert,
     getAllIdeas,
     updateIdeaStatus,
     deleteIdea,

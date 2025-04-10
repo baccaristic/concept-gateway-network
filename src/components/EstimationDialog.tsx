@@ -1,109 +1,131 @@
+
+import { useState } from 'react';
+import { Idea } from '@/types';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
-} from "@/components/ui/dialog.tsx";
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel} from "@/components/ui/form.tsx";
-import {Slider} from "@/components/ui/slider.tsx";
-import {Textarea} from "@/components/ui/textarea.tsx";
-import {Button} from "@/components/ui/button.tsx";
-import {useForm} from "react-hook-form";
-import {Idea} from "@/types";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { expertApi } from '@/services/api';
+import { toast } from 'sonner';
 
 interface EstimationDialogProps {
-    estimateDialogOpen: any;
-    setEstimateDialogOpen: any;
-    handleSubmitEstimation: any;
-    selectedIdea: Idea;
-    isLoading: boolean;
+  estimateDialogOpen: boolean;
+  setEstimateDialogOpen: (open: boolean) => void;
+  handleSubmitEstimation: (values: { estimatedPrice: number; notes: string }) => void;
+  selectedIdea: Idea | null;
+  isLoading: boolean;
 }
 
-interface EstimationFormValues {
-    estimatedPrice: number;
-    notes: string;
-}
+export function EstimationDialog({
+  estimateDialogOpen,
+  setEstimateDialogOpen,
+  selectedIdea,
+  isLoading
+}: EstimationDialogProps) {
+  const [estimationPrice, setEstimationPrice] = useState(50000);
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-export const EstimationDialog = (props: EstimationDialogProps) => {
-    const form = useForm<EstimationFormValues>({
-        defaultValues: {
-            estimatedPrice: 50000,
-            notes: '',
-        },
-    });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedIdea) return;
+    
+    try {
+      setSubmitting(true);
+      
+      await expertApi.submitEstimation(selectedIdea.id, estimationPrice, notes);
+      
+      toast.success("Estimation submitted successfully");
+      setEstimateDialogOpen(false);
+      
+      // Reset form
+      setEstimationPrice(50000);
+      setNotes('');
+      
+      // Refresh the page after 1 second to show updated data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error submitting estimation:', error);
+      toast.error("Failed to submit estimation");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    return (
-        <Dialog open={props.estimateDialogOpen} onOpenChange={props.estimateDialogOpen}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Estimate Idea Price</DialogTitle>
-                    <DialogDescription>
-                        {props.selectedIdea?.title}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(props.handleSubmitEstimation)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="estimatedPrice"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Estimated Development Cost</FormLabel>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-muted-foreground">$10,000</span>
-                                            <span className="text-xl font-bold">${field.value.toLocaleString()}</span>
-                                            <span className="text-sm text-muted-foreground">$200,000</span>
-                                        </div>
-                                        <Slider
-                                            defaultValue={[field.value]}
-                                            min={10000}
-                                            max={200000}
-                                            step={5000}
-                                            onValueChange={(value) => field.onChange(value[0])}
-                                        />
-                                    </div>
-                                    <FormDescription>
-                                        Provide your best estimate for the development cost of this idea.
-                                    </FormDescription>
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="notes"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Estimation Notes</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Add additional context to your estimation..."
-                                            className="resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        These notes will be shared with the idea owner and admin.
-                                    </FormDescription>
-                                </FormItem>
-                            )}
-                        />
-
-                        <DialogFooter>
-                            <Button variant="outline" type="button" onClick={() => props.setEstimateDialogOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={props.isLoading}>
-                                {props.isLoading ? "Submitting..." : "Submit Estimation"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
-    )
+  return (
+    <Dialog open={estimateDialogOpen} onOpenChange={setEstimateDialogOpen}>
+      <DialogContent className="sm:max-w-[500px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Estimate Idea: {selectedIdea?.title}</DialogTitle>
+            <DialogDescription>
+              Provide your professional estimation for this idea's implementation.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="price">Estimated Budget (USD)</Label>
+                <span className="text-lg font-semibold">${estimationPrice.toLocaleString()}</span>
+              </div>
+              <Slider
+                id="price"
+                min={5000}
+                max={500000}
+                step={5000}
+                value={[estimationPrice]}
+                onValueChange={(values) => setEstimationPrice(values[0])}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>$5,000</span>
+                <span>$500,000</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="estimation-notes">Notes</Label>
+              <Textarea
+                id="estimation-notes"
+                placeholder="Add your professional notes about this estimation..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={5}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setEstimateDialogOpen(false)}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit"
+              disabled={submitting || isLoading}
+            >
+              {submitting ? "Submitting..." : "Submit Estimation"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }

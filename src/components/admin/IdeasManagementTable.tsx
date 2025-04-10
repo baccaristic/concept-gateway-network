@@ -1,13 +1,22 @@
-
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Idea, IdeaStatus } from '@/types';
-import { useState } from 'react';
+import { Idea, IdeaStatus, User } from '@/types';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter 
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { adminApi } from '@/services/api';
 
 interface IdeasManagementTableProps {
   ideas: Idea[];
@@ -18,13 +27,75 @@ interface IdeasManagementTableProps {
 export function IdeasManagementTable({ ideas, onUpdateStatus, onDeleteIdea }: IdeasManagementTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const [showAssignExpertDialog, setShowAssignExpertDialog] = useState(false);
+  const [currentIdeaId, setCurrentIdeaId] = useState<string | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<IdeaStatus | null>(null);
+  const [experts, setExperts] = useState<User[]>([]);
+  const [selectedExpertId, setSelectedExpertId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Filter ideas based on search term
+  useEffect(() => {
+    if (showAssignExpertDialog) {
+      fetchExperts();
+    }
+  }, [showAssignExpertDialog]);
+
+  const fetchExperts = async () => {
+    try {
+      setIsLoading(true);
+      const expertsData = await adminApi.getAllExperts();
+      setExperts(expertsData);
+      setIsLoading(false);
+      
+      if (expertsData.length > 0) {
+        setSelectedExpertId(expertsData[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching experts:', error);
+      toast.error('Failed to load experts');
+      setIsLoading(false);
+    }
+  };
+
   const filteredIdeas = ideas.filter(idea => 
     idea.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     idea.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (idea.category && idea.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleStatusChange = async (ideaId: string, newStatus: IdeaStatus) => {
+    if (newStatus === 'APPROVED') {
+      setCurrentIdeaId(ideaId);
+      setPendingStatus(newStatus);
+      setShowAssignExpertDialog(true);
+    } else {
+      await onUpdateStatus(ideaId, newStatus);
+    }
+  };
+
+  const handleAssignExpert = async () => {
+    if (!currentIdeaId || !selectedExpertId || !pendingStatus) return;
+
+    try {
+      setIsLoading(true);
+      
+      await adminApi.assignIdeaToExpert(currentIdeaId, selectedExpertId);
+      
+      await onUpdateStatus(currentIdeaId, pendingStatus);
+      
+      toast.success('Idea assigned to expert and status updated successfully');
+      
+      setShowAssignExpertDialog(false);
+      setCurrentIdeaId(null);
+      setPendingStatus(null);
+      setSelectedExpertId('');
+    } catch (error) {
+      console.error('Error assigning expert:', error);
+      toast.error('Failed to assign expert to idea');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card>
@@ -72,7 +143,7 @@ export function IdeasManagementTable({ ideas, onUpdateStatus, onDeleteIdea }: Id
                     <div className="flex justify-end gap-2">
                       <Select
                         defaultValue={idea.status}
-                        onValueChange={(value) => onUpdateStatus(idea.id, value as IdeaStatus)}
+                        onValueChange={(value) => handleStatusChange(idea.id, value as IdeaStatus)}
                       >
                         <SelectTrigger className="w-[130px]">
                           <SelectValue placeholder="Change status" />
@@ -106,6 +177,64 @@ export function IdeasManagementTable({ ideas, onUpdateStatus, onDeleteIdea }: Id
           </Table>
         </div>
       </CardContent>
+
+      <Dialog open={showAssignExpertDialog} onOpenChange={setShowAssignExpertDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Assign Idea to an Expert</DialogTitle>
+            <DialogDescription>
+              Select an expert to review and estimate this idea.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <label htmlFor="expert-select" className="text-sm font-medium block mb-2">
+              Select Expert
+            </label>
+            {isLoading ? (
+              <div className="flex items-center justify-center p-4">
+                <div className="animate-spin h-6 w-6 border-2 border-gray-500 rounded-full border-t-transparent"></div>
+              </div>
+            ) : experts.length === 0 ? (
+              <div className="text-center p-4 border rounded-md bg-gray-50">
+                <p className="text-sm text-gray-500">No experts available</p>
+              </div>
+            ) : (
+              <Select value={selectedExpertId} onValueChange={setSelectedExpertId}>
+                <SelectTrigger id="expert-select">
+                  <SelectValue placeholder="Select an expert" />
+                </SelectTrigger>
+                <SelectContent>
+                  {experts.map((expert) => (
+                    <SelectItem key={expert.id} value={expert.id}>
+                      {expert.name} ({expert.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowAssignExpertDialog(false);
+                setCurrentIdeaId(null);
+                setPendingStatus(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleAssignExpert} 
+              disabled={!selectedExpertId || isLoading}
+            >
+              {isLoading ? 'Assigning...' : 'Assign Expert'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

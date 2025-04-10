@@ -1,4 +1,3 @@
-
 /**
  * API service for handling all backend communication
  */
@@ -181,6 +180,25 @@ export const ideasApi = {
     }
     
     return await response.json();
+  },
+  
+  submitEstimation: async (ideaId: string, estimationData: { price: number, notes: string }): Promise<Idea> => {
+    const response = await fetch(`${API_BASE_URL}/idea/expert/estimate`, {
+      method: 'POST',
+      headers: setAuthHeader(),
+      body: JSON.stringify({
+        ideaId,
+        price: estimationData.price,
+        notes: estimationData.notes
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to submit estimation');
+    }
+    
+    return await response.json();
   }
 };
 
@@ -258,8 +276,27 @@ export const expertApi = {
       headers: setAuthHeader()
     });
     if (!response.ok) {
-      throw new Error('Failed to fetch users');
+      throw new Error('Failed to fetch ideas to estimate');
     }
+    return await response.json();
+  },
+  
+  submitEstimation: async (ideaId: string, price: number, notes: string): Promise<Idea> => {
+    const response = await fetch(`${API_BASE_URL}/idea/expert/estimate`, {
+      method: 'POST',
+      headers: setAuthHeader(),
+      body: JSON.stringify({
+        ideaId,
+        price,
+        notes
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to submit estimation');
+    }
+    
     return await response.json();
   }
 }
@@ -455,5 +492,32 @@ export const adminApi = {
     }
     
     return await response.json();
+  },
+  
+  // Get all expert users
+  getAllExperts: async (): Promise<User[]> => {
+    const response = await fetch(`${API_BASE_URL}/admin/experts`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch experts');
+    }
+    
+    return await response.json();
+  },
+  
+  // Assign idea to expert
+  assignIdeaToExpert: async (ideaId: string, expertId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/admin/assign`, {
+      method: 'POST',
+      headers: setAuthHeader(),
+      body: JSON.stringify({ ideaId, expertId })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to assign idea to expert');
+    }
   }
 };
