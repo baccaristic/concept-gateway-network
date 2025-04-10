@@ -439,11 +439,13 @@ const IdeaDetails = () => {
                 </TabsTrigger>
               </TabsList>
               
-              {/* Animated indicator for active tab */}
-              <div className="absolute bottom-6 h-1 bg-primary transition-all duration-200 rounded-full"
+              {/* Updated tab indicator with better alignment calculation */}
+              <div className="absolute bottom-6 h-1 bg-primary transition-all duration-300 rounded-full"
                    style={{
-                     left: `calc(${['innovation', 'market', 'progress', 'team', 'funding', 'documents'].indexOf(activeTab) * (100/6)}% + 1rem)`,
-                     width: 'calc(100%/6 - 2rem)'
+                     left: `calc((100% / 6) * ${['innovation', 'market', 'progress', 'team', 'funding', 'documents'].indexOf(activeTab)})`,
+                     width: 'calc(100% / 6)',
+                     transform: 'translateX(8%)',  /* Fine-tuning the alignment */
+                     maxWidth: 'calc(100% / 6 - 16px)'
                    }}
               />
             </div>
