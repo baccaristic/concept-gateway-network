@@ -3,41 +3,39 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { paymentApi } from '@/services/api';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, DollarSign, ArrowRight, Loader2 } from 'lucide-react';
 
 interface PaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPaymentInitiated: (paymentRef: string, payUrl: string) => void;
+  onSubmitWithPayment: () => void;
   onCancel: () => void;
   amount: number;
 }
 
-const PaymentDialog = ({ open, onOpenChange, onPaymentInitiated, onCancel, amount }: PaymentDialogProps) => {
+const PaymentDialog = ({ open, onOpenChange, onSubmitWithPayment, onCancel, amount }: PaymentDialogProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleInitiatePayment = async () => {
+  const handleSubmitWithPayment = async () => {
     try {
       setIsLoading(true);
-      const response = await paymentApi.initIdeaSubmissionPayment(amount);
+      
+      // Call the submit with payment function that will handle the redirection
+      onSubmitWithPayment();
       
       toast({
-        title: "Payment initiated",
-        description: "You'll be redirected to the payment page.",
+        title: "Processing submission",
+        description: "You'll be redirected to the payment page shortly.",
       });
-      
-      onPaymentInitiated(response.paymentRef, response.payUrl);
     } catch (error) {
-      console.error("Error initiating payment:", error);
+      console.error("Error processing submission:", error);
       toast({
-        title: "Payment error",
-        description: "There was a problem initiating your payment. Please try again.",
+        title: "Submission error",
+        description: "There was a problem with your submission. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -74,11 +72,11 @@ const PaymentDialog = ({ open, onOpenChange, onPaymentInitiated, onCancel, amoun
             <ol className="text-xs text-muted-foreground space-y-2">
               <li className="flex items-start">
                 <span className="bg-primary/20 text-primary w-5 h-5 rounded-full flex items-center justify-center mr-2 flex-shrink-0">1</span>
-                <span>You'll be redirected to the secure Konnect payment page</span>
+                <span>Your idea information will be sent to our server</span>
               </li>
               <li className="flex items-start">
                 <span className="bg-primary/20 text-primary w-5 h-5 rounded-full flex items-center justify-center mr-2 flex-shrink-0">2</span>
-                <span>Complete your payment using your preferred method</span>
+                <span>You'll be redirected to the secure Konnect payment page</span>
               </li>
               <li className="flex items-start">
                 <span className="bg-primary/20 text-primary w-5 h-5 rounded-full flex items-center justify-center mr-2 flex-shrink-0">3</span>
@@ -99,7 +97,7 @@ const PaymentDialog = ({ open, onOpenChange, onPaymentInitiated, onCancel, amoun
           <Button
             variant="default"
             className="gap-2"
-            onClick={handleInitiatePayment}
+            onClick={handleSubmitWithPayment}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -109,7 +107,7 @@ const PaymentDialog = ({ open, onOpenChange, onPaymentInitiated, onCancel, amoun
               </>
             ) : (
               <>
-                Proceed to Payment
+                Submit and Pay
                 <ArrowRight className="h-4 w-4" />
               </>
             )}

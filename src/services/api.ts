@@ -117,6 +117,7 @@ export const ideasApi = {
 
     return await response.json();
   },
+  
   getInvestorEstimatedIdeas: async (): Promise<Idea[]> => {
     const response = await fetch(`${API_BASE_URL}/ideas/investor/estimated`, {
       headers: setAuthHeader()
@@ -135,12 +136,9 @@ export const ideasApi = {
     category?: string;
     estimatedBudget?: number;
     additionalData?: IdeaAdditionalData;
-    paymentRef?: string;
-  }): Promise<{idea: Idea, paymentInfo?: PaymentInitResponse}> => {
-    // Make sure we're using camelCase for all fields
+  }): Promise<{payUrl: string}> => {
     const payload = {
       ...ideaData,
-      // Convert any remaining snake_case fields to camelCase if necessary
     };
     
     const response = await fetch(`${API_BASE_URL}/ideas/new`, {

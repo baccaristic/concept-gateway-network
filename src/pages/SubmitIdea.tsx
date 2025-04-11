@@ -23,12 +23,12 @@ const SubmitIdea = () => {
           <Alert className="mb-6" variant={paymentResult === 'success' ? 'default' : 'destructive'}>
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>
-              {paymentResult === 'success' ? 'Payment Successful' : 'Payment Incomplete'}
+              {paymentResult === 'success' ? 'Payment Processing' : 'Payment Incomplete'}
             </AlertTitle>
             <AlertDescription>
               {paymentResult === 'success' 
-                ? 'Your payment was successful. You can continue with your idea submission.' 
-                : 'Your payment was not completed. Please try again.'}
+                ? 'Your payment is being processed. If your idea is not visible in your dashboard within a few minutes, please contact support.' 
+                : 'Your payment was not completed. Please try submitting your idea again.'}
             </AlertDescription>
           </Alert>
         )}
