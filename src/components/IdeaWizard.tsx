@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ideasApi } from '@/services/api';
+import { ideasApi, paymentApi } from '@/services/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Upload, Link, FileVideo, Youtube, File, FileText, Paperclip } from 'lucide-react';
-import { DocumentData } from '@/types';
+import { DocumentData, PaymentStatus } from '@/types';
+import PaymentDialog from './PaymentDialog';
 
 // Define step types for strong typing
 type WizardStep = 'generalInfo' | 'details' | 'innovation' | 'team' | 'budget' | 'documents' | 'review';
@@ -179,6 +180,59 @@ const IdeaWizard = () => {
   // State for loading
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Add payment related states
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentRef, setPaymentRef] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
+  const [paymentPollInterval, setPaymentPollInterval] = useState<number | null>(null);
+  
+  // Payment amount
+  const IDEA_SUBMISSION_FEE = 100; // $100 for idea submission
+  
+  // Poll for payment status if we have a payment reference
+  useEffect(() => {
+    if (paymentRef && paymentStatus !== 'COMPLETED' && !paymentPollInterval) {
+      const interval = window.setInterval(async () => {
+        try {
+          const status = await paymentApi.getPaymentStatus(paymentRef);
+          setPaymentStatus(status.status);
+          
+          if (status.status === 'COMPLETED') {
+            // Clear the interval and submit the idea
+            if (paymentPollInterval) {
+              clearInterval(paymentPollInterval);
+              setPaymentPollInterval(null);
+            }
+            
+            toast.success("Payment successful!");
+            await submitIdeaAfterPayment(paymentRef);
+          } else if (status.status === 'FAILED' || status.status === 'CANCELLED') {
+            // Clear the interval and show an error
+            if (paymentPollInterval) {
+              clearInterval(paymentPollInterval);
+              setPaymentPollInterval(null);
+            }
+            
+            toast.error("Payment was not successful. Please try again.");
+            setPaymentRef(null);
+            setPaymentUrl(null);
+            setPaymentStatus(null);
+          }
+        } catch (error) {
+          console.error("Error checking payment status:", error);
+        }
+      }, 5000); // Check every 5 seconds
+      
+      setPaymentPollInterval(interval);
+      
+      // Clean up the interval when the component unmounts
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [paymentRef, paymentStatus]);
+  
   // Handle document upload
   const handleDocumentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -322,16 +376,36 @@ const IdeaWizard = () => {
     }
   };
   
-  // Handle form submission
-  const handleSubmit = async () => {
+  // Handle payment initiated
+  const handlePaymentInitiated = (ref: string, url: string) => {
+    setPaymentRef(ref);
+    setPaymentUrl(url);
+    setPaymentStatus('PENDING');
+    setShowPaymentDialog(false);
+    
+    // Open payment URL in a new window
+    window.open(url, '_blank');
+    
+    // Show toast message
+    toast.info("Payment window opened. Please complete your payment.");
+  };
+  
+  // Handle payment dialog cancel
+  const handlePaymentCancel = () => {
+    setShowPaymentDialog(false);
+  };
+  
+  // Submit idea after payment
+  const submitIdeaAfterPayment = async (paymentReference: string) => {
     try {
       setIsSubmitting(true);
 
-      await ideasApi.submitIdea({
+      const idea = await ideasApi.submitIdea({
         title: formData.title,
         description: formData.description,
         category: formData.category,
         estimatedBudget: formData.estimated_budget ? Number(formData.estimated_budget) : undefined,
+        paymentRef: paymentReference, // Include payment reference
         additionalData: {
           sector: formData.sector,
           technology: formData.technology,
@@ -414,6 +488,12 @@ const IdeaWizard = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  // Modified handle submit to initiate payment first
+  const handleSubmit = async () => {
+    // Show payment dialog
+    setShowPaymentDialog(true);
   };
   
   // Get available sectors based on selected category
@@ -911,681 +991,3 @@ const IdeaWizard = () => {
                       <Label htmlFor={`future-year-${index}`}>Year</Label>
                       <Input
                         id={`future-year-${index}`}
-                        value={market.year}
-                        onChange={(e) => handleFutureMarketChange(index, 'year', e.target.value)}
-                        placeholder="Planned year"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`future-market-type-${index}`}>Market Type</Label>
-                      <Select 
-                        value={market.marketType} 
-                        onValueChange={(value) => handleFutureMarketChange(index, 'marketType', value)}
-                      >
-                        <SelectTrigger id={`future-market-type-${index}`}>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {marketTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    {index > 0 && (
-                      <Button 
-                        variant="destructive" 
-                        className="mt-2"
-                        onClick={() => removeFutureMarket(index)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                
-                <Button 
-                  variant="outline" 
-                  onClick={addFutureMarket}
-                  className="flex items-center gap-2 mt-2"
-                >
-                  <Upload className="h-4 w-4" /> Add Another Market
-                </Button>
-              </div>
-              
-              {/* Market Size */}
-              <div className="space-y-2">
-                <Label htmlFor="market_size">
-                  What Is The Size Of Your Market?
-                </Label>
-                <Textarea
-                  id="market_size"
-                  value={formData.market_size}
-                  onChange={(e) => handleInputChange('market_size', e.target.value)}
-                  placeholder="Quantify your total addressable market"
-                  rows={2}
-                />
-              </div>
-              
-              {/* Target Market Share */}
-              <div className="space-y-2">
-                <Label htmlFor="target_market_share">
-                  What Is Your Target Market Share? And How Do You Plan To Achieve It?
-                </Label>
-                <Textarea
-                  id="target_market_share"
-                  value={formData.target_market_share}
-                  onChange={(e) => handleInputChange('target_market_share', e.target.value)}
-                  placeholder="What percentage of the market do you aim to capture and how?"
-                  rows={2}
-                />
-              </div>
-              
-              {/* Growth Strategy */}
-              <div className="space-y-2">
-                <Label htmlFor="growth_strategy">
-                  What Is Your Growth Strategy For The Next 3 Years? (In Numbers)
-                </Label>
-                <Textarea
-                  id="growth_strategy"
-                  value={formData.growth_strategy}
-                  onChange={(e) => handleInputChange('growth_strategy', e.target.value)}
-                  placeholder="Provide quantitative growth projections"
-                  rows={2}
-                />
-              </div>
-              
-              {/* Current Users */}
-              <div className="space-y-2">
-                <Label htmlFor="current_users">
-                  How Many Users Do You Have Today? What Is Your Projection For The Next 3 Years?
-                </Label>
-                <Textarea
-                  id="current_users"
-                  value={formData.current_users}
-                  onChange={(e) => handleInputChange('current_users', e.target.value)}
-                  placeholder="Current user base and growth projections"
-                  rows={2}
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'team':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-primary text-lg font-bold mb-5 pb-2 py-6 border-primary/30 border-b">Team Information</h2>
-            </div>
-            
-            <div className="space-y-4 py-4">
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
-                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  In the future, this section will allow you to add more detailed information about your team members and their roles.
-                  For now, you can provide basic team information below.
-                </p>
-              </div>
-              
-              {/* Project Stage */}
-              <div className="space-y-2 mt-6">
-                <Label htmlFor="project_stage">
-                  What Stage Is Your Project At?
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Select 
-                  value={formData.project_stage} 
-                  onValueChange={(value) => handleInputChange('project_stage', value)}
-                >
-                  <SelectTrigger id="project_stage">
-                    <SelectValue placeholder="Select project stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projectStages.map((stage) => (
-                      <SelectItem key={stage} value={stage}>
-                        {stage}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Current Progress */}
-              <div className="space-y-2">
-                <Label htmlFor="current_progress">
-                  Please Detail The Current Progress Of Your Project (Product, Market, Partners...)
-                </Label>
-                <Textarea
-                  id="current_progress"
-                  value={formData.current_progress}
-                  onChange={(e) => handleInputChange('current_progress', e.target.value)}
-                  placeholder="Describe your project's current status"
-                  rows={3}
-                />
-              </div>
-              
-              {/* Incubator */}
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="joined_incubator"
-                  checked={formData.joined_incubator as boolean}
-                  onCheckedChange={(checked) => handleInputChange('joined_incubator', checked)}
-                />
-                <Label htmlFor="joined_incubator">
-                  Have you participated in an acceleration/incubation/support program?
-                </Label>
-              </div>
-              
-              {/* Entrepreneurship Award */}
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="won_entrepreneurship_award"
-                  checked={formData.won_entrepreneurship_award as boolean}
-                  onCheckedChange={(checked) => handleInputChange('won_entrepreneurship_award', checked)}
-                />
-                <Label htmlFor="won_entrepreneurship_award">
-                  Have you ever won an entrepreneurship award?
-                </Label>
-              </div>
-              
-              {/* Patents */}
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="filed_patents"
-                  checked={formData.filed_patents as boolean}
-                  onCheckedChange={(checked) => handleInputChange('filed_patents', checked)}
-                />
-                <Label htmlFor="filed_patents">
-                  Have you filed any patents?
-                </Label>
-              </div>
-              
-              <div className="pt-4 border-t mt-4">
-                <h3 className="text-primary font-semibold mb-4">Founding Team</h3>
-                
-                {/* Number of Co-founders */}
-                <div className="space-y-2">
-                  <Label htmlFor="number_of_cofounders">
-                    How Many Co-founders Are There?
-                  </Label>
-                  <Input
-                    id="number_of_cofounders"
-                    type="number"
-                    value={formData.number_of_cofounders}
-                    onChange={(e) => handleInputChange('number_of_cofounders', e.target.value)}
-                    placeholder="Enter number"
-                    min="1"
-                  />
-                </div>
-                
-                {/* Team Description */}
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="team_description">
-                    Describe Your Founding Team
-                  </Label>
-                  <Textarea
-                    id="team_description"
-                    value={formData.team_description}
-                    onChange={(e) => handleInputChange('team_description', e.target.value)}
-                    placeholder="Describe the backgrounds, skills, and roles of your founding team"
-                    rows={3}
-                  />
-                </div>
-                
-                {/* Team Capable */}
-                <div className="flex items-center space-x-2 mt-4">
-                  <Switch
-                    id="team_capable"
-                    checked={formData.team_capable as boolean}
-                    onCheckedChange={(checked) => handleInputChange('team_capable', checked)}
-                  />
-                  <Label htmlFor="team_capable">
-                    Do you think your current team is able to execute your project well?
-                  </Label>
-                </div>
-                
-                {/* Time Working on Project */}
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="time_working_on_project">
-                    How Long Have You Been Working On The Project? Full-time Or Part-time?
-                  </Label>
-                  <Input
-                    id="time_working_on_project"
-                    value={formData.time_working_on_project}
-                    onChange={(e) => handleInputChange('time_working_on_project', e.target.value)}
-                    placeholder="e.g., 6 months, full-time"
-                  />
-                </div>
-                
-                {/* Worked Together Before */}
-                <div className="flex items-center space-x-2 mt-4">
-                  <Switch
-                    id="worked_together_before"
-                    checked={formData.worked_together_before as boolean}
-                    onCheckedChange={(checked) => handleInputChange('worked_together_before', checked)}
-                  />
-                  <Label htmlFor="worked_together_before">
-                    Have you worked together on other projects?
-                  </Label>
-                </div>
-                
-                {/* Launched Startup Before */}
-                <div className="flex items-center space-x-2 mt-4">
-                  <Switch
-                    id="launched_startup_before"
-                    checked={formData.launched_startup_before as boolean}
-                    onCheckedChange={(checked) => handleInputChange('launched_startup_before', checked)}
-                  />
-                  <Label htmlFor="launched_startup_before">
-                    Have you launched a startup before?
-                  </Label>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 'budget':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-primary text-lg font-bold mb-5 pb-2 py-6 border-primary/30 border-b">Budget & Presentation</h2>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="estimated_budget">Estimated Budget ($)</Label>
-                <Input
-                  id="estimated_budget"
-                  type="number"
-                  placeholder="Enter estimated budget"
-                  value={formData.estimated_budget}
-                  onChange={(e) => handleInputChange('estimated_budget', e.target.value)}
-                />
-              </div>
-              
-              {/* Fundraising Goal */}
-              <div className="space-y-2 mt-4">
-                <Label htmlFor="fundraising_goal">
-                  How Much Funding Do You Plan To Raise Over The Next 3 Years?
-                </Label>
-                <Input
-                  id="fundraising_goal"
-                  type="number"
-                  value={formData.fundraising_goal}
-                  onChange={(e) => handleInputChange('fundraising_goal', e.target.value)}
-                  placeholder="Amount in USD"
-                />
-              </div>
-              
-              {/* Revenue Projection */}
-              <div className="space-y-2">
-                <Label htmlFor="revenue_projection">
-                  How Much Revenue Do You Plan To Generate Over The Next 3 Years?
-                </Label>
-                <Input
-                  id="revenue_projection"
-                  type="number"
-                  value={formData.revenue_projection}
-                  onChange={(e) => handleInputChange('revenue_projection', e.target.value)}
-                  placeholder="Amount in USD"
-                />
-              </div>
-              
-              {/* Pitch Video */}
-              <div className="space-y-2 mt-6">
-                <Label htmlFor="pitch_video_url" className="flex items-center gap-2">
-                  <Youtube className="h-4 w-4" /> Link To A YouTube Video (Max 3 Minutes) Presenting Your Startup
-                </Label>
-                <Input
-                  id="pitch_video_url"
-                  value={formData.pitch_video_url}
-                  onChange={(e) => handleInputChange('pitch_video_url', e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                />
-                <p className="text-xs text-muted-foreground">
-                  Include innovative aspects, growth potential, and team strengths in your pitch video
-                </p>
-              </div>
-              
-              {/* Legal Agreement */}
-              <div className="space-y-4 mt-6 p-4 border rounded-md bg-gray-50 dark:bg-gray-900">
-                <h3 className="font-medium">Legal Agreement</h3>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="certify_information"
-                    checked={formData.certify_information as boolean}
-                    onCheckedChange={(checked) => handleInputChange('certify_information', checked)}
-                  />
-                  <Label htmlFor="certify_information">
-                    I certify the accuracy of the information provided
-                    <span className="text-red-500">*</span>
-                  </Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="accept_conditions"
-                    checked={formData.accept_conditions as boolean}
-                    onCheckedChange={(checked) => handleInputChange('accept_conditions', checked)}
-                  />
-                  <Label htmlFor="accept_conditions">
-                    I accept the idea submission conditions
-                    <span className="text-red-500">*</span>
-                  </Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="authorize_sharing"
-                    checked={formData.authorize_sharing as boolean}
-                    onCheckedChange={(checked) => handleInputChange('authorize_sharing', checked)}
-                  />
-                  <Label htmlFor="authorize_sharing">
-                    I authorize sharing my contact information for startup opportunities
-                  </Label>
-                </div>
-              </div>
-              
-              <div className="p-4 mt-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 flex-shrink-0 text-white text-center leading-8 rounded-full bg-blue-500 mr-3">i</div>
-                  <div className="text-sm text-blue-800 dark:text-blue-200 italic">
-                    This information helps investors better understand the scale of your project.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'documents':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-primary text-lg font-bold mb-5 pb-2 py-6 border-primary/30 border-b">Supporting Documents</h2>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 flex-shrink-0 text-white text-center leading-8 rounded-full bg-blue-500 mr-3">i</div>
-                  <div className="text-sm text-blue-800 dark:text-blue-200">
-                    Upload any supporting documents that help explain your idea. This can include business plans, presentations, diagrams, prototypes, or any other relevant material.
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <Label className="flex items-center gap-2 mb-4">
-                  <Paperclip className="h-4 w-4" /> Upload Documents
-                </Label>
-                
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-                  <FileText className="h-10 w-10 mx-auto mb-4 text-gray-400" />
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      Drag and drop your files here, or click to browse
-                    </p>
-                    
-                    <Input 
-                      type="file" 
-                      id="document-upload" 
-                      className="hidden"
-                      onChange={handleDocumentUpload}
-                      multiple
-                    />
-                    <Button 
-                      variant="outline" 
-                      onClick={() => document.getElementById('document-upload')?.click()}
-                      className="mx-auto"
-                    >
-                      <Upload className="h-4 w-4 mr-2" /> Browse Files
-                    </Button>
-                  </div>
-                </div>
-                
-                {documents.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-md font-medium mb-4">Uploaded Documents ({documents.length})</h3>
-                    <div className="space-y-3">
-                      {documents.map((doc, index) => (
-                        <div key={index} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-                          <div className="flex items-center gap-3 mb-3 md:mb-0">
-                            <File className="h-5 w-5 text-primary" />
-                            <div>
-                              <p className="font-medium">{doc.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {(doc.size / 1024).toFixed(2)} KB • {doc.type.split('/')[1]}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex gap-4 items-center">
-                            <Input 
-                              placeholder="Add description (optional)"
-                              value={doc.description || ''}
-                              onChange={e => updateDocumentDescription(index, e.target.value)}
-                              className="max-w-[200px]"
-                            />
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => removeDocument(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <div className="p-4 mt-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 flex-shrink-0 text-white text-center leading-8 rounded-full bg-yellow-500 mr-3">!</div>
-                  <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                    Maximum file size: 10MB per document. Supported formats: PDF, DOC, DOCX, PPT, PPTX, PNG, JPG, JPEG.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 'review':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-primary text-lg font-bold mb-5 pb-2 py-6 border-primary/30 border-b">Review Your Idea</h2>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right font-semibold">Project Name:</Label>
-                  <div className="col-span-3">{formData.title}</div>
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right font-semibold">Description:</Label>
-                  <div className="col-span-3">{formData.description}</div>
-                </div>
-                
-                {formData.website && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Website:</Label>
-                    <div className="col-span-3">{formData.website}</div>
-                  </div>
-                )}
-                
-                {formData.category && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Industry:</Label>
-                    <div className="col-span-3">{formData.category}</div>
-                  </div>
-                )}
-                
-                {formData.sector && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Sector:</Label>
-                    <div className="col-span-3">{formData.sector}</div>
-                  </div>
-                )}
-                
-                {formData.technology && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Technology:</Label>
-                    <div className="col-span-3">{formData.technology}</div>
-                  </div>
-                )}
-                
-                {formData.region && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Region:</Label>
-                    <div className="col-span-3">{formData.region}</div>
-                  </div>
-                )}
-                
-                {formData.estimated_budget && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Budget:</Label>
-                    <div className="col-span-3">${formData.estimated_budget}</div>
-                  </div>
-                )}
-                
-                {formData.solution && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Solution:</Label>
-                    <div className="col-span-3">{formData.solution}</div>
-                  </div>
-                )}
-                
-                {formData.project_stage && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Project Stage:</Label>
-                    <div className="col-span-3">{formData.project_stage}</div>
-                  </div>
-                )}
-                
-                {documents.length > 0 && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right font-semibold">Documents:</Label>
-                    <div className="col-span-3">
-                      <ul className="list-disc pl-5">
-                        {documents.map((doc, index) => (
-                          <li key={index}>{doc.name}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-                
-                {!formData.certify_information && (
-                  <div className="col-span-4 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded border border-yellow-200 dark:border-yellow-800">
-                    <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                      Please certify the accuracy of your information before submission.
-                    </p>
-                  </div>
-                )}
-                
-                {!formData.accept_conditions && (
-                  <div className="col-span-4 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded border border-yellow-200 dark:border-yellow-800">
-                    <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                      Please accept the idea submission conditions before proceeding.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-        
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <Card className="border-none shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Submit Your Idea</CardTitle>
-        
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4 dark:bg-gray-700">
-          <div 
-            className="bg-primary h-2.5 rounded-full transition-all duration-300" 
-            style={{width: `${getProgress()}%`}}
-          ></div>
-        </div>
-        
-        {/* Step indicators */}
-        <div className="flex justify-between mt-2">
-          <div className={`text-xs ${currentStep === 'generalInfo' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            General Info
-          </div>
-          <div className={`text-xs ${currentStep === 'details' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            Details
-          </div>
-          <div className={`text-xs ${currentStep === 'innovation' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            Innovation
-          </div>
-          <div className={`text-xs ${currentStep === 'team' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            Team
-          </div>
-          <div className={`text-xs ${currentStep === 'budget' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            Budget
-          </div>
-          <div className={`text-xs ${currentStep === 'documents' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            Documents
-          </div>
-          <div className={`text-xs ${currentStep === 'review' ? 'text-primary font-bold' : 'text-gray-500'}`}>
-            Review
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        {renderStepContent()}
-      </CardContent>
-      
-      <CardFooter className="flex justify-between p-6">
-        <Button 
-          variant="outline" 
-          onClick={prevStep}
-          disabled={currentStep === 'generalInfo'}
-          className="w-32"
-        >
-          Previous
-        </Button>
-        
-        {currentStep === 'review' ? (
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isSubmitting || !formData.certify_information || !formData.accept_conditions}
-            className="w-32"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </Button>
-        ) : (
-          <Button 
-            onClick={nextStep}
-            className="w-32"
-          >
-            Next
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  );
-};
-
-export default IdeaWizard;

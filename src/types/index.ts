@@ -1,4 +1,3 @@
-
 export interface Idea {
   id: string;
   title: string;
@@ -159,4 +158,33 @@ export interface Agreement {
   signedAt?: string;
   createdAt: string;
   idea?: Idea;
+}
+
+export interface PaymentInitResponse {
+  payUrl: string;
+  paymentRef: string;
+}
+
+export interface PaymentWebhookPayload {
+  paymentRef: string;
+  status: PaymentStatus;
+  amount: number;
+  timestamp: string;
+  transactionId?: string;
+  customerInfo?: {
+    email?: string;
+    name?: string;
+    phone?: string;
+  };
+}
+
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+
+export interface PaymentInfo {
+  paymentRef: string;
+  status: PaymentStatus;
+  amount: number;
+  createdAt: string;
+  completedAt?: string;
+  ideaId?: string;
 }

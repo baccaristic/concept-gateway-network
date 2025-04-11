@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -134,6 +133,9 @@ const App = () => (
                     <PdfViewer />
                   </ProtectedRoute>
                 } />
+                
+                {/* Payment redirect route */}
+                <Route path="/payment/callback" element={<PaymentRedirect />} />
                 
                 {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />

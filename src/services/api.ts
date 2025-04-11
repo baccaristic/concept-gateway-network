@@ -1,10 +1,11 @@
 /**
  * API service for handling all backend communication
  */
-import { Idea, User, Comment, UserRole, IdeaStatus, Agreement, IdeaAdditionalData, Attachment } from "@/types";
+import { Idea, User, Comment, UserRole, IdeaStatus, Agreement, IdeaAdditionalData, Attachment, PaymentInitResponse, PaymentInfo } from "@/types";
 
 // Base API URL - change this to your Spring Boot server address in production
 const API_BASE_URL = 'http://localhost:8083';
+const KONNECT_API_URL = 'https://api.sandbox.konnect.network/api/v2';
 
 /**
  * Set authentication token for API requests
@@ -58,6 +59,57 @@ export const authApi = {
 };
 
 /**
+ * Payment related API calls
+ */
+export const paymentApi = {
+  initIdeaSubmissionPayment: async (amount: number): Promise<PaymentInitResponse> => {
+    const response = await fetch(`${API_BASE_URL}/payments/init`, {
+      method: 'POST',
+      headers: setAuthHeader(),
+      body: JSON.stringify({ 
+        amount,
+        description: 'Idea submission fee',
+        silentWebhook: true
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to initialize payment');
+    }
+    
+    return await response.json();
+  },
+  
+  getPaymentStatus: async (paymentRef: string): Promise<PaymentInfo> => {
+    const response = await fetch(`${API_BASE_URL}/payments/${paymentRef}`, {
+      headers: setAuthHeader()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to get payment status');
+    }
+    
+    return await response.json();
+  },
+  
+  // This would typically be handled by the backend
+  handlePaymentWebhook: async (webhookData: any): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/payments/webhook`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(webhookData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to process payment webhook');
+    }
+  }
+};
+
+/**
  * Ideas related API calls
  */
 export const ideasApi = {
@@ -102,6 +154,7 @@ export const ideasApi = {
     category?: string;
     estimatedBudget?: number;
     additionalData?: IdeaAdditionalData;
+    paymentRef?: string;
   }): Promise<Idea> => {
     // Make sure we're using camelCase for all fields
     const payload = {
