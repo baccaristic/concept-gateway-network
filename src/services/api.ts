@@ -74,7 +74,6 @@ export const paymentApi = {
     return await response.json();
   },
   
-  // This would typically be handled by the backend
   handlePaymentWebhook: async (webhookData: any): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/payments/webhook`, {
       method: 'POST',
@@ -137,14 +136,10 @@ export const ideasApi = {
     estimatedBudget?: number;
     additionalData?: IdeaAdditionalData;
   }): Promise<{payUrl: string}> => {
-    const payload = {
-      ...ideaData,
-    };
-    
     const response = await fetch(`${API_BASE_URL}/ideas/new`, {
       method: 'POST',
       headers: setAuthHeader(),
-      body: JSON.stringify(payload)
+      body: JSON.stringify(ideaData)
     });
     
     if (!response.ok) {
@@ -337,7 +332,6 @@ export const expertApi = {
  * Investor related API calls
  */
 export const investorApi = {
-  // Get agreements by investor
   getMyAgreements: async (): Promise<Agreement[]> => {
     const response = await fetch(`${API_BASE_URL}/investor/agreements`, {
       headers: setAuthHeader()
@@ -350,7 +344,6 @@ export const investorApi = {
     return await response.json();
   },
   
-  // Get agreement by ID
   getAgreementById: async (agreementId: string): Promise<Agreement> => {
     const response = await fetch(`${API_BASE_URL}/investor/agreements/${agreementId}`, {
       headers: setAuthHeader()
@@ -363,7 +356,6 @@ export const investorApi = {
     return await response.json();
   },
   
-  // Create a new agreement
   createAgreement: async (ideaId: string): Promise<Agreement> => {
     const response = await fetch(`${API_BASE_URL}/investor/agreements`, {
       method: 'POST',
@@ -378,7 +370,6 @@ export const investorApi = {
     return await response.json();
   },
   
-  // Submit signed agreement document
   submitSignedAgreement: async (agreementId: string, signatureData: string, file?: File): Promise<Agreement> => {
     const formData = new FormData();
     formData.append('agreementId', agreementId);
@@ -409,7 +400,6 @@ export const investorApi = {
  * Admin related API calls
  */
 export const adminApi = {
-  // Get all users (admin only)
   getAllUsers: async (): Promise<User[]> => {
     const response = await fetch(`${API_BASE_URL}/admin/users`, {
       headers: setAuthHeader()
@@ -422,7 +412,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Update user role (admin only)
   updateUserRole: async (userId: string, role: UserRole): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/role`, {
       method: 'PUT',
@@ -437,7 +426,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Add a new expert (admin only)
   addExpert: async (expertData: { name: string, email: string, password: string }): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/admin/experts`, {
       method: 'POST',
@@ -452,7 +440,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Get all ideas (admin only)
   getAllIdeas: async (): Promise<Idea[]> => {
     const response = await fetch(`${API_BASE_URL}/admin/ideas`, {
       headers: setAuthHeader()
@@ -465,7 +452,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Get idea by ID (admin & authorized users)
   getIdeaById: async (ideaId: string): Promise<Idea> => {
     const response = await fetch(`${API_BASE_URL}/ideas/${ideaId}`, {
       headers: setAuthHeader()
@@ -478,7 +464,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Update idea status (admin only)
   updateIdeaStatus: async (ideaId: string, status: IdeaStatus): Promise<Idea> => {
     const response = await fetch(`${API_BASE_URL}/admin/ideas/${ideaId}/status`, {
       method: 'PUT',
@@ -493,7 +478,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Delete idea (admin only)
   deleteIdea: async (ideaId: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/admin/ideas/${ideaId}`, {
       method: 'DELETE',
@@ -505,7 +489,6 @@ export const adminApi = {
     }
   },
   
-  // Get dashboard stats (admin only)
   getDashboardStats: async (): Promise<{
     userCount: number;
     ideaCount: number;
@@ -526,7 +509,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Get all expert users
   getAllExperts: async (): Promise<User[]> => {
     const response = await fetch(`${API_BASE_URL}/admin/experts`, {
       headers: setAuthHeader()
@@ -539,7 +521,6 @@ export const adminApi = {
     return await response.json();
   },
   
-  // Assign idea to expert
   assignIdeaToExpert: async (ideaId: string, expertId: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/admin/assign`, {
       method: 'POST',
