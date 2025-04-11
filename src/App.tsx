@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +22,7 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InvestorDashboard from "@/pages/InvestorDashboard";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import PaymentRedirect from "./pages/PaymentRedirect";
 
 // Footer pages
 import HowItWorks from "./pages/HowItWorks";

@@ -62,25 +62,6 @@ export const authApi = {
  * Payment related API calls
  */
 export const paymentApi = {
-  initIdeaSubmissionPayment: async (amount: number): Promise<PaymentInitResponse> => {
-    const response = await fetch(`${API_BASE_URL}/payments/init`, {
-      method: 'POST',
-      headers: setAuthHeader(),
-      body: JSON.stringify({ 
-        amount,
-        description: 'Idea submission fee',
-        silentWebhook: true
-      })
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Failed to initialize payment');
-    }
-    
-    return await response.json();
-  },
-  
   getPaymentStatus: async (paymentRef: string): Promise<PaymentInfo> => {
     const response = await fetch(`${API_BASE_URL}/payments/${paymentRef}`, {
       headers: setAuthHeader()
@@ -155,7 +136,7 @@ export const ideasApi = {
     estimatedBudget?: number;
     additionalData?: IdeaAdditionalData;
     paymentRef?: string;
-  }): Promise<Idea> => {
+  }): Promise<{idea: Idea, paymentInfo?: PaymentInitResponse}> => {
     // Make sure we're using camelCase for all fields
     const payload = {
       ...ideaData,
